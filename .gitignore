@@ -1,0 +1,5 @@
+# DB
+*.sql
+
+# Class
+.in_class/
