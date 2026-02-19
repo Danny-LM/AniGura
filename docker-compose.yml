@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: anigura_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "b0nny!"
+      MYSQL_DATABASE: anigura_db
+      MYSQL_USER: dannylm
+      MYSQL_PASSWORD: "4321!"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: anigura_db_gui
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: "b0nny!"
+    depends_on:
+      - db
+    volumes:
+      - ./.themes/blueberry:/var/www/html/themes/blueberry
+
+volumes:
+  db_data:
