@@ -2,7 +2,7 @@
 require_once "core/Autoloader.php";
 Core\Autoloader::register();
 
-use Core\{ Config, Response };
+use Core\{ Config, Response, Database };
 
 try {
     Config::load(__DIR__ . "/.env");
