@@ -28,6 +28,17 @@ services:
       - db
     volumes:
       - ./.themes/blueberry:/var/www/html/themes/blueberry
+  
+  api:
+    build: ./anigura_api
+    container_name: anigura_api
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./anigura_api:/var/www/html
+    depends_on:
+      - db
 
 volumes:
   db_data:
