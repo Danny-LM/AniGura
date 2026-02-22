@@ -57,23 +57,22 @@ abstract class BaseModel {
         }
         $fields = rtrim($fields, ", ");
 
-        $sql = "UPDATE {$this->table} SET {$fields} WHERE {$this->primaryKey} = :id";
+        $sql = "UPDATE {$this->table} SET {$fields} WHERE {$this->primaryKey} = :pk_id";
         $stmt = $this->db->prepare($sql);
 
         foreach ($data as $key => $value) {
             $val = ($value instanceof \UnitEnum) ? $value->value : $value;
             $stmt->bindValue(":{$key}", $val);
         }
-        $stmt->bindValue(":id", $id);
+        $stmt->bindValue(":pk_id", $id);
 
         return $stmt->execute() ? true : false;
     }
 
     public function delete($id): bool {
-        $stmt = $this->db->prepare("
-            DELETE FROM {$this->table}
-            WHERE {$this->primaryKey} = :id
-        ");
+        $sql = "DELETE FROM {$this->table}
+                WHERE {$this->primaryKey} = :id";
+        $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":id", $id);
         $stmt->execute();
         

@@ -1,6 +1,8 @@
 <?php
 namespace Core;
 
+use Exception;
+
 abstract class BaseController {
 
     protected function json(int $code, $data=null, string $msg = ""): void {
@@ -17,6 +19,14 @@ abstract class BaseController {
 
     protected function getBody(): array {
         $json = file_get_contents("php://input");
-        return json_decode($json, true) ?? [];
+        if (empty($json)) return [];
+
+        $data = json_decode($json, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception("Invalid JSON format: " . json_last_error_msg());
+        }
+
+        return $data ?? [];
     }
 }

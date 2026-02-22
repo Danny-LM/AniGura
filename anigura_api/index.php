@@ -35,10 +35,10 @@ $router->get("/", function () {
 
 $router->post("/users", [$userController, "store"]);
 $router->get("/users",  [$userController, "index"]);
-$router->get("/users/search", fn() => $userController->search());
+$router->post("/users/search", fn() => $userController->search());
 $router->get("/users/:id", fn($id) => $userController->show((int)$id));
 $router->put("/users/:id", fn($id) => $userController->update((int)$id));
-$router->put("/users/:id", fn($id) => $userController->destroy((int)$id));
+$router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
 
 
 $router->run();

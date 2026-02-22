@@ -67,14 +67,18 @@ class UserController extends BaseController {
         }
     }
 
-    public function search() {
+    public function search(): void {
         try {
             $data = $this->getBody();
-            $email = $data["email"];
-            $this->userService->getByEmail($email);
+            $email = $data["email"] ?? null;
+            $user = $this->userService->getByEmail($email);
+
+            if (!$user) $this->error("User not found", 404);
+            $this->ok($user);
 
         } catch (Exception $e) {
-            $this->error($e->getMessage());
+            $code = ($e->getCode() === 404) ? 404 : 400;
+            $this->error($e->getMessage(), $code);
         }
     }
 }

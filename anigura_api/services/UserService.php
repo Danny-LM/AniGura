@@ -13,19 +13,17 @@ class UserService {
     }
 
     public function create(array $data) {
-        if (!$data["full_name"]) throw new Exception("Name is required");
-        if (!$data["email"]) throw new Exception("Email is required");
-        if (!$data["password"]) throw new Exception("Password is required");
+        if (empty($data["full_name"])) throw new \Exception("Name is required");
+        if (empty($data["email"])) throw new \Exception("Email is required");
+        if (empty($data["password"])) throw new \Exception("Password is required");
 
-        $filteredData = array_intersect($data, array_flip(self::ALLOWED_FIELDS));
+        $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
-        $filteredData["password"] = password_hash($filteredData["password"], PASSWORD_BCRYPT);
+        $data["rfc"] = $data["rfc"] ?? null;
+        $data["address"] = $data["address"] ?? null;
+        $data["zip_code"] = $data["zip_code"] ?? null;
 
-        $filteredData["rfc"] = $filteredData["rfc"] ? $filteredData["rfc"] : null;
-        $filteredData["address"] = $filteredData["address"] ? $filteredData["address"] : null;
-        $filteredData["zip_code"] = $filteredData["zip_code"] ? $filteredData["zip_code"] : null;
-
-        return $this->userModel->save($filteredData);
+        return $this->userModel->save($data);
     }
 
     public function find(int $id) {
@@ -63,6 +61,7 @@ class UserService {
     }
 
     public function getByEmail(string $email) {
+        if (empty($email)) throw new Exception("Email is required");
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new Exception("Invalid email format");
 
         $user = $this->userModel->findByEmail($email);
