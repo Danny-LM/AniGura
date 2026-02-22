@@ -3,7 +3,7 @@ require_once "core/Autoloader.php";
 Core\Autoloader::register();
 
 use Core\{ Config, Response, Database, Router };
-use Controllers\{ UserController, CategoryController };
+use Controllers\{ UserController, CategoryController, SerieController };
 
 try {
     Config::load(__DIR__ . "/.env");
@@ -21,6 +21,7 @@ if (Config::get("APP_DEBUG") === "true") {
 $router = new Router();
 $userController = new UserController();
 $categoryController = new CategoryController();
+$serieController = new SerieController();
 
 $router->get("/", function () {
     $apiInfo = [
@@ -48,6 +49,11 @@ $router->post("/categories", [$categoryController, "store"]);
 $router->put("/categories/:id", fn($id) => $categoryController->update((int)$id));
 $router->delete("/categories/:id", fn($id) => $categoryController->destroy((int)$id));
 
+$router->get("/series",  [$serieController, "index"]);
+$router->get("/series/:id", fn($id) => $serieController->show((int)$id));
+$router->post("/series", [$serieController, "store"]);
+$router->put("/series/:id", fn($id) => $serieController->update((int)$id));
+$router->delete("/series/:id", fn($id) => $serieController->destroy((int)$id));
 
 
 $router->run();

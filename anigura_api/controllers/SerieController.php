@@ -2,21 +2,20 @@
 namespace Controllers;
 
 use Core\BaseController;
-use Services\CategoryService;
+use Services\SerieService;
 use Exception;
 
-
-class CategoryController extends BaseController {
-    private $categoryService;
+class SerieController extends BaseController {
+    private $serieService;
 
     public function __construct() {
-        $this->categoryService = new CategoryService();
+        $this->serieService = new SerieService();
     }
 
     public function index(): void {
         try {
-            $categories = $this->categoryService->findAll();
-            $this->ok($categories, "Categories retrieved successfully");
+            $series = $this->serieService->findAll();
+            $this->ok($series, "Series retrieved successfully");
 
         } catch (Exception $e) {
             $this->error($e->getMessage(), 500);
@@ -25,9 +24,9 @@ class CategoryController extends BaseController {
 
     public function show(int $id): void {
         try {
-            $category = $this->categoryService->find($id);
-            if (!$category) $this->error("Category not found", 404);
-            $this->ok($category);
+            $serie = $this->serieService->find($id);
+            if (!$serie) $this->error("Serie not found", 404);
+            $this->ok($serie);
 
         } catch (Exception $e) {
             $this->error($e->getMessage());
@@ -37,8 +36,8 @@ class CategoryController extends BaseController {
     public function store(): void {
         try {
             $data = $this->getBody();
-            $categoryId = $this->categoryService->create($data);
-            $this->json(201, ["id" => $categoryId], "Category created");
+            $serieId = $this->serieService->create($data);
+            $this->json(201, ["id" => $serieId], "Serie created");
 
         } catch (Exception $e) {
             $this->error($e->getMessage());
@@ -49,8 +48,8 @@ class CategoryController extends BaseController {
         try {
             $data = $this->getBody();
 
-            $this->categoryService->update($id, $data);
-            $this->ok(null, "Category updated");
+            $this->serieService->update($id, $data);
+            $this->ok(null, "Serie updated");
 
         } catch (Exception $e) {
             $this->error($e->getMessage());
@@ -59,8 +58,8 @@ class CategoryController extends BaseController {
 
     public function destroy(int $id) {
         try {
-            $this->categoryService->delete($id);
-            $this->ok(null, "Category deleted");
+            $this->serieService->delete($id);
+            $this->ok(null, "Serie deleted");
 
         } catch (Exception $e) {
             $this->error($e->getMessage());

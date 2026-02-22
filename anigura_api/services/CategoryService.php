@@ -34,7 +34,6 @@ class CategoryService {
 
         if (!empty($data["name"])) {
             $existing = $this->categoryModel->findByName($data["name"]);
-
             if ($existing && (int)$existing["id"] !== $id) throw new Exception("Category already exists");
         }
 
