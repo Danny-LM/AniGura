@@ -81,4 +81,18 @@ class UserController extends BaseController {
             $this->error($e->getMessage(), $code);
         }
     }
+
+    public function checkCredentials(): void {
+        try {
+            $data = $this->getBody();
+            $verified = $this->userService->verifyPassword($data);
+
+            if (!$verified) $this->error("Incorrect password", 401);
+
+            $this->ok();
+
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+        }
+    }
 }

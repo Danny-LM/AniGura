@@ -48,3 +48,21 @@ Content-Type: {{contentType}}
 {
     "email": "dannylm@anigura.mx"
 }
+
+### Login - Success Case
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "dannylm@anigura.mx",
+    "password": "Pass4321!"
+}
+
+### Login - Fail Case (wrong password)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "dannylm@anigura.mx",
+    "password": "pas4321"
+}

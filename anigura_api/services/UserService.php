@@ -39,17 +39,11 @@ class UserService {
     public function update(array $data) {
         if (empty($data["id"])) throw new Exception("ID is required");
         $id = $data["id"];
+        if (isset($data["password"])) throw new Exception("Password cannot be updated in this request");
 
         $filteredData = array_intersect_key($data, array_flip(self::ALLOWED_FIELDS));
         $cleanData = array_filter($filteredData, fn($value) => $value !== null);
         if (empty($cleanData)) return true;
-
-        $cleanData = array_filter($data, fn($value) => $value !== null);
-        if (empty($cleanData)) return true;
-
-        if (isset($cleanData["password"])) {
-            $cleanData["password"] = password_hash($cleanData["password"], PASSWORD_BCRYPT);
-        }
 
         return $this->userModel->update($id, $cleanData);
     }
@@ -65,8 +59,18 @@ class UserService {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new Exception("Invalid email format");
 
         $user = $this->userModel->findByEmail($email);
-        if (!$user) throw new Exception("User not found", 404);
+        if (!$user) throw new Exception("Email not found", 404);
 
         return $user;
+    }
+
+    public function verifyPassword(array $data) {
+        if (empty($data["email"])) throw new Exception("Email is required");
+        if (empty($data["password"])) throw new Exception("Password is required");
+
+        $user = $this->userModel->getAuthData($data["email"]);
+        if (!$user) return false;
+
+        return password_verify($data["password"], $user["password"]);
     }
 }

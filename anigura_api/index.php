@@ -33,10 +33,11 @@ $router->get("/", function () {
     Response::json(200, $apiInfo, "Welcome to Anigura API system.");
 });
 
-$router->post("/users", [$userController, "store"]);
 $router->get("/users",  [$userController, "index"]);
-$router->post("/users/search", fn() => $userController->search());
 $router->get("/users/:id", fn($id) => $userController->show((int)$id));
+$router->post("/users", [$userController, "store"]);
+$router->post("/users/search", fn() => $userController->search());
+$router->post("/auth/login", fn() => $userController->checkCredentials());
 $router->put("/users/:id", fn($id) => $userController->update((int)$id));
 $router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
 
