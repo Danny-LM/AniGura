@@ -3,10 +3,11 @@ namespace Services;
 
 use Exception;
 use Models\UserModel;
+use Enums\RoleEnum;
 
 class UserService {
     private $userModel;
-    private const ALLOWED_FIELDS = ["full_name", "email", "password", "role", "rfc", "address", "zip_code"];    
+    private const ALLOWED_FIELDS = ["full_name", "email", "password", "role", "rfc", "address", "zip_code"];
 
     public function __construct() {
         $this->userModel = new UserModel();    
@@ -16,6 +17,7 @@ class UserService {
         if (empty($data["full_name"])) throw new \Exception("Name is required");
         if (empty($data["email"])) throw new \Exception("Email is required");
         if (empty($data["password"])) throw new \Exception("Password is required");
+        $this->validateAndConvertRole($data);
 
         $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
@@ -39,6 +41,7 @@ class UserService {
     public function update(int $id, array $data) {
         if (empty($id)) throw new Exception("ID is required");
         if (isset($data["password"])) throw new Exception("Password cannot be updated in this request");
+        $this->validateAndConvertRole($data);
 
         $filteredData = array_intersect_key($data, array_flip(self::ALLOWED_FIELDS));
         $cleanData = array_filter($filteredData, fn($value) => $value !== null);
@@ -71,5 +74,15 @@ class UserService {
         if (!$user) return false;
 
         return password_verify($data["password"], $user["password"]);
+    }
+
+    private function validateAndConvertRole(array &$data): void {
+        if (!empty($data["role"])) {
+            $enumValue = RoleEnum::tryFrom($data["role"]);
+            if (!$enumValue) {
+                throw new \Exception("Invalid role. Allowed: admin, user");
+            }
+            $data["role"] = $enumValue;
+        }
     }
 }
