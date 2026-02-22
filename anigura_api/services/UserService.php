@@ -36,9 +36,8 @@ class UserService {
         return $this->userModel->all();
     }
 
-    public function update(array $data) {
-        if (empty($data["id"])) throw new Exception("ID is required");
-        $id = $data["id"];
+    public function update(int $id, array $data) {
+        if (empty($id)) throw new Exception("ID is required");
         if (isset($data["password"])) throw new Exception("Password cannot be updated in this request");
 
         $filteredData = array_intersect_key($data, array_flip(self::ALLOWED_FIELDS));

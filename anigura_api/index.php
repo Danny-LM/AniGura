@@ -3,7 +3,7 @@ require_once "core/Autoloader.php";
 Core\Autoloader::register();
 
 use Core\{ Config, Response, Database, Router };
-use Controllers\UserController;
+use Controllers\{ UserController, CategoryController };
 
 try {
     Config::load(__DIR__ . "/.env");
@@ -20,6 +20,7 @@ if (Config::get("APP_DEBUG") === "true") {
 
 $router = new Router();
 $userController = new UserController();
+$categoryController = new CategoryController();
 
 $router->get("/", function () {
     $apiInfo = [
@@ -40,6 +41,13 @@ $router->post("/users/search", fn() => $userController->search());
 $router->post("/auth/login", fn() => $userController->checkCredentials());
 $router->put("/users/:id", fn($id) => $userController->update((int)$id));
 $router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
+
+$router->get("/categories",  [$categoryController, "index"]);
+$router->get("/categories/:id", fn($id) => $categoryController->show((int)$id));
+$router->post("/categories", [$categoryController, "store"]);
+$router->put("/categories/:id", fn($id) => $categoryController->update((int)$id));
+$router->delete("/categories/:id", fn($id) => $categoryController->destroy((int)$id));
+
 
 
 $router->run();

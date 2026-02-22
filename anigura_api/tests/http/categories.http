@@ -1,0 +1,37 @@
+# categories.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+
+### List categories
+GET {{baseUrl}}/categories
+Accept: {{contentType}}
+
+
+### Create category
+POST {{baseUrl}}/categories
+Content-Type: {{contentType}}
+
+{
+    "name": "Poster"
+}
+
+
+### Get specific category
+@categoryId = 4
+GET {{baseUrl}}/categories/{{categoryId}}
+Accept: {{contentType}}
+
+
+### Update category (Partial)
+PUT {{baseUrl}}/categories/{{categoryId}}
+Content-Type: {{contentType}}
+
+{
+    "name": "Light Novel"
+}
+
+
+### Delete category
+DELETE {{baseUrl}}/categories/{{categoryId}}
+Accept: {{contentType}}

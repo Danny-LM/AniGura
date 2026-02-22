@@ -47,9 +47,8 @@ class UserController extends BaseController {
     public function update(int $id): void {
         try {
             $data = $this->getBody();
-            $data["id"] = $id;
 
-            $this->userService->update($data);
+            $this->userService->update($id, $data);
             $this->ok(null, "User updated");
 
         } catch (Exception $e) {
