@@ -6,17 +6,20 @@ use Core\{ Config, Response, Router };
 use Models\{
     UserModel,
     FranchiseModel,
-    PublisherModel
+    PublisherModel,
+    AddressModel,
 };
 use Services\{
     UserService,
     FranchiseService,
-    PublisherService
+    PublisherService,
+    AddressService,
 };
 use Controllers\{
     UserController,
     FranchiseController,
-    PublisherController
+    PublisherController,
+    AddressController,
 };
 
 try {
@@ -73,6 +76,16 @@ $router->get("/publishers/:id", fn($id) => $publisherController->show((int)$id))
 $router->post("/publishers", [$publisherController, "store"]);
 $router->patch("/publishers/:id", fn($id) => $publisherController->update((int)$id));
 $router->delete("/publishers/:id", fn($id) => $publisherController->destroy((int)$id));
+
+$addressModel = new AddressModel();
+$addressService = new AddressService($addressModel, $userModel);
+$addressController = new AddressController($addressService);
+$router->get("/addresses",  [$addressController, "index"]);
+$router->get("/addresses/user/:userId", fn($userId) => $addressController->userDefault((int)$userId));
+$router->get("/addresses/:id", fn($id) => $addressController->show((int)$id));
+$router->post("/addresses", [$addressController, "store"]);
+$router->patch("/addresses/:id", fn($id) => $addressController->update((int)$id));
+$router->delete("/addresses/:id", fn($id) => $addressController->destroy((int)$id));
 
 
 $router->run();

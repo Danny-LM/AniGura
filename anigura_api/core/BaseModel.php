@@ -21,7 +21,7 @@ abstract class BaseModel {
         $stmt = $this->db->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $val = ($value instanceof \UnitEnum) ? $value->value : $value;
+            $val = $this->formatValue($value);
             $stmt->bindValue(":{$key}", $val);
         }
 
@@ -61,7 +61,7 @@ abstract class BaseModel {
         $stmt = $this->db->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $val = ($value instanceof \UnitEnum) ? $value->value : $value;
+            $val = $this->formatValue($value);
             $stmt->bindValue(":{$key}", $val);
         }
         $stmt->bindValue(":pk_id", $id);
@@ -114,5 +114,12 @@ abstract class BaseModel {
         $stmt->execute();
 
         return $stmt->fetch();
+    }
+
+    private function formatValue($value) {
+        if (is_bool($value)) return $value ? 1 : 0;
+        if ($value instanceof \UnitEnum) return $value->value;
+        
+        return $value;
     }
 }

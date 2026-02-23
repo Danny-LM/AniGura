@@ -9,43 +9,52 @@ class Validator {
 
         foreach ($rules as $field => $ruleString) {
             $rulesArray = explode("|", $ruleString);
-            $value = $data[$field] ?? null;
+            $exists = array_key_exists($field, $data);
+            $isRequired = in_array("!null", $rulesArray);
+
+            if (!$exists) {
+                if ($isRequired) throw new Exception("The field '$field' is required", 400);
+
+                continue;
+            }
+            
+            $value = $data[$field];
 
             foreach ($rulesArray as $rule) {
                 if ($rule === "!null" && ($value === null || $value === "")) {
-                    throw new Exception("The field '$field' is required", 400);
+                    throw new Exception("The field '$field' cannot be empty", 400);
                 }
 
-                if ($rule === "email" && !empty($value)) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if ($value !== null) {
+                    if (str_contains($rule, "min:")) {
+                        $min = (int) explode(":", $rule)[1];
+                        if (strlen((string)$value) < $min) {
+                            throw new Exception("The field '$field' must be at least $min characters long", 400);
+                        }
+                    }
+
+                    if (str_contains($rule, "max:")) {
+                        $max = (int) explode(":", $rule)[1];
+                        if (strlen((string)$value) > $max) {
+                            throw new Exception("The field '$field' must be at most $max characters long", 400);
+                        }
+                    }
+
+                    if ($rule === "email" && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         throw new Exception("The field '$field' must be a valid email", 400);
                     }
-                }
-
-                if (str_contains($rule, "min:") && !empty($value)) {
-                    $min = (int) explode(":", $rule)[1];
-                    if (strlen($value) < $min) {
-                        throw new Exception("The field '$field' must be at least $min characters long", 400);
+    
+                    if ($rule === "num" && !is_numeric($value)) {
+                        throw new Exception("The field '$field' must be numeric", 400);
                     }
-                }
-
-                if (str_contains($rule, "max:") && !empty($value)) {
-                    $max = (int) explode(":", $rule)[1];
-                    if (strlen($value) > $max) {
-                        throw new Exception("The field '$field' must be at most $max characters long", 400);
-                    }
-                }
-
-                if ($rule === "num") {
-                    if (!is_numeric($value)) {
-                        throw new Exception("The field '$field' must be numberic", 400);
+    
+                    if ($rule === "bool" && !is_bool($value)) {
+                        throw new Exception("The field '$field' must be a boolean", 400);
                     }
                 }
             }
 
-            if (array_key_exists($field, $data)) {
-                $filteredData[$field] = $data[$field];
-            }
+            $filteredData[$field] = $value;
         }
 
         return $filteredData;
