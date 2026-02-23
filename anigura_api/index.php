@@ -8,18 +8,21 @@ use Models\{
     FranchiseModel,
     PublisherModel,
     AddressModel,
+    MediaEntryModel,
 };
 use Services\{
     UserService,
     FranchiseService,
     PublisherService,
     AddressService,
+    MediaEntryService,
 };
 use Controllers\{
     UserController,
     FranchiseController,
     PublisherController,
     AddressController,
+    MediaEntryController,
 };
 
 try {
@@ -86,6 +89,15 @@ $router->get("/addresses/:id", fn($id) => $addressController->show((int)$id));
 $router->post("/addresses", [$addressController, "store"]);
 $router->patch("/addresses/:id", fn($id) => $addressController->update((int)$id));
 $router->delete("/addresses/:id", fn($id) => $addressController->destroy((int)$id));
+
+$mediaEntryModel = new MediaEntryModel();
+$mediaEntryService = new MediaEntryService($mediaEntryModel, $franchiseModel);
+$mediaEntryController = new MediaEntryController($mediaEntryService);
+$router->get("/media_entries",  [$mediaEntryController, "index"]);
+$router->get("/media_entries/:id", fn($id) => $mediaEntryController->show((int)$id));
+$router->post("/media_entries", [$mediaEntryController, "store"]);
+$router->patch("/media_entries/:id", fn($id) => $mediaEntryController->update((int)$id));
+$router->delete("/media_entries/:id", fn($id) => $mediaEntryController->destroy((int)$id));
 
 
 $router->run();

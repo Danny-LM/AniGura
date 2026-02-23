@@ -19,6 +19,14 @@ Content-Type: {{contentType}}
     "password": "Pass4321!"
 }
 
+# "role" => "",
+# "full_name" => "!null|max:255",
+# "email" => "!null|email|max:150",
+# "password" => "!null|min:8|max:255",
+# "rfc" => "max:13",
+
+# role enum = user, admin
+
 
 ### Get specific user
 GET {{baseUrl}}/users/{{userId}}

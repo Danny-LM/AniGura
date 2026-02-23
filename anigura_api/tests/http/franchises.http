@@ -17,6 +17,9 @@ Content-Type: {{contentType}}
     "name": "Frieren: Beyond Journey's End"
 }
 
+# "name" => "!null|max:255",
+# "synopsis" => ""
+
 
 ### Get specific franchise
 GET {{baseUrl}}/franchises/{{franchiseId}}

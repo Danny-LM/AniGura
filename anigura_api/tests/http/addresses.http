@@ -24,6 +24,14 @@ Content-Type: {{contentType}}
     "is_default": false
 }
 
+# "id_user"    => "!null|num",
+# "alias"      => "max:50",
+# "street"     => "!null|max:255",
+# "city"       => "!null|max:100",
+# "state"      => "!null|max:100",
+# "zip_code"   => "!null|max:10",
+# "is_default" => "bool"
+
 
 ### Get specific address
 GET {{baseUrl}}/addresses/{{addressId}}

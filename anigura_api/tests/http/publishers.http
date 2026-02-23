@@ -17,6 +17,8 @@ Content-Type: {{contentType}}
     "name": "Viz"
 }
 
+# "name" => "!null|max:255"
+
 
 ### Get specific publisher
 GET {{baseUrl}}/publishers/{{publisherId}}
