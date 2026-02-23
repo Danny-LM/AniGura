@@ -2,6 +2,7 @@
 namespace Core;
 
 use Core\Response;
+use Exception;
 
 class Router {
 
@@ -22,10 +23,10 @@ class Router {
     }
 
     /**
-     * To update resources
+     * To partial update resources
      */
-    public function put($path, $callback) {
-        $this->routes["PUT"][$path] = $callback;
+    public function patch($path, $callback) {
+        $this->routes["PATCH"][$path] = $callback;
     }
 
     /**
@@ -42,18 +43,24 @@ class Router {
         $method = $_SERVER["REQUEST_METHOD"];
         $path   = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 
-        foreach ($this->routes[$method] ?? [] as $routePath => $callback) {
-            $pattern = "#^" . preg_replace('/:[a-zA-Z0-9]+/', '([^/]+)', $routePath) . "$#";
-
-            if (preg_match($pattern, $path, $matches)) {
-                array_shift($matches);
-
-                if (is_callable($callback)) {
-                    return call_user_func_array($callback, $matches);
+        try {
+            foreach ($this->routes[$method] ?? [] as $routePath => $callback) {
+                $pattern = "#^" . preg_replace('/:[a-zA-Z0-9]+/', '([^/]+)', $routePath) . "$#";
+    
+                if (preg_match($pattern, $path, $matches)) {
+                    array_shift($matches);
+    
+                    if (is_callable($callback)) {
+                        return call_user_func_array($callback, $matches);
+                    }
                 }
             }
+
+            Response::json(404, null, "Route not found: $method $path");
+
+        } catch (Exception $e) {
+            $code = is_numeric($e->getCode()) && $e->getCode() >= 400 ? $e->getCode() : 500;
+            Response::json($code, null, $e->getMessage());
         }
-        
-        Response::json(404, null, "Route not found: $method $path");
     }
 }

@@ -9,7 +9,7 @@ class UserModel extends BaseModel {
 
     public function findByEmail(string $email): array|false {
 
-        $sql = "SELECT id, role, full_name, email, rfc, address, zip_code, created_at
+        $sql = "SELECT id, role, full_name, email, rfc, created_at
                 FROM {$this->table} WHERE email = :email";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":email", $email);

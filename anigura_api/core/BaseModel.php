@@ -78,4 +78,41 @@ abstract class BaseModel {
         
         return $stmt->rowCount() > 0;
     }
+
+    public function exists(int $id): bool {
+        $sql = "SELECT 1 FROM {$this->table}
+                WHERE {$this->primaryKey} = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function transaction(callable $callback) {
+        try {
+            $this->db->beginTransaction();
+            $result = $callback();
+            $this->db->commit();
+
+            return $result;
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            throw $e;
+        }
+    }
+
+    public function findForUpdate(int $id): array|false {
+        if (empty($id)) return false;
+
+        $sql = "SELECT * FROM {$this->table}
+                WHERE {$this->primaryKey} = :id
+                FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+
+        return $stmt->fetch();
+    }
 }

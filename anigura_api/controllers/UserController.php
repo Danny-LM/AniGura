@@ -1,97 +1,86 @@
 <?php
 namespace Controllers;
 
+use Exception;
 use Core\BaseController;
 use Services\UserService;
-use Exception;
 
 class UserController extends BaseController {
     private $userService;
 
-    public function __construct() {
-        $this->userService = new UserService();
+    public function __construct(UserService $userService) {
+        $this->userService = $userService;
     }
 
     public function index(): void {
-        try {
-            $users = $this->userService->findAll();
-            $this->ok($users, "Users retrieved successfully");
-
-        } catch (Exception $e) {
-            $this->error($e->getMessage(), 500);
-        }
+        $users = $this->userService->findAll();
+        $this->ok($users, "Users retrieved successfully");
     }
 
     public function show($id): void {
-        try {
-            $user = $this->userService->find($id);
-            if (!$user) $this->error("User not found", 404);
-            $this->ok($user);
+        $this->validate(["id" => $id], [ "id" => "num" ]);
 
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-        }
+        $user = $this->userService->find((int)$id);
+        $this->ok($user);
     }
 
     public function store(): void {
-        try {
-            $data = $this->getBody();
-            $userId = $this->userService->create($data);
-            $this->json(201, ["id" => $userId], "User created");
+        $data = $this->getBody();
+        $validated = $this->validate($data, [
+            "role" => "",
+            "full_name" => "!null|max:255",
+            "email" => "!null|email|max:150",
+            "password" => "!null|min:8|max:255",
+            "rfc" => "max:13",
+        ]);
+        if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-        }
+        $userId = $this->userService->create($validated);
+        $this->json(201, ["id" => $userId], "User created");
     }
 
     public function update(int $id): void {
-        try {
-            $data = $this->getBody();
+        $this->validate(["id" => $id], [ "id" => "num" ]);
 
-            $this->userService->update($id, $data);
-            $this->ok(null, "User updated");
+        $data = $this->getBody();
+        $validated = $this->validate($data, [
+            "full_name" => "max:255",
+            "email" => "email|max:150",
+            "rfc" => "max:13",
+        ]);
+        if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
 
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-        }
+        $this->userService->update($id, $validated);
+        $this->ok(null, "User updated");
     }
 
     public function destroy(int $id) {
-        try {
-            $this->userService->delete($id);
-            $this->ok(null, "User deleted");
-
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-        }
+        $this->validate(["id" => $id], [ "id" => "num" ]);
+        
+        $this->userService->delete($id);
+        $this->ok(null, "User deleted");
     }
 
     public function search(): void {
-        try {
-            $data = $this->getBody();
-            $email = $data["email"] ?? null;
-            $user = $this->userService->getByEmail($email);
+        $data = $this->getBody();
+        $validated = $this->validate($data, [
+            "email" => "!null|email|max:150",
+        ]);
+        if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-            if (!$user) $this->error("User not found", 404);
-            $this->ok($user);
-
-        } catch (Exception $e) {
-            $code = ($e->getCode() === 404) ? 404 : 400;
-            $this->error($e->getMessage(), $code);
-        }
+        $user = $this->userService->getByEmail($validated["email"]);
+        if (!$user) throw new Exception("User email not found", 404);
+        $this->ok($user);
     }
 
     public function checkCredentials(): void {
-        try {
-            $data = $this->getBody();
-            $verified = $this->userService->verifyPassword($data);
-
-            if (!$verified) $this->error("Incorrect password", 401);
-
-            $this->ok();
-
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-        }
+        $data = $this->getBody();
+        $validated = $this->validate($data, [
+            "email" => "!null|email|max:150",
+            "password" => "!null|min:8|max:255",
+        ]);
+        
+        $this->userService->verifyPassword($validated);
+        $this->ok(null, "Login successful");
     }
 }

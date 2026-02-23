@@ -13,30 +13,30 @@ POST {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 {
-    "full_name": "Ashley",
-    "email": "ashleylm@anigura.mx",
+    "full_name": "Danny LM 2",
+    "email": "dannylm2@anigura.mx",
     "password": "Pass4321!"
 }
 
 
 ### Get specific user
-@userId = 1
+@userId = 2
 GET {{baseUrl}}/users/{{userId}}
 Accept: {{contentType}}
 
 
 ### Update user (Partial)
-@userId = 1
+@userId = 2
 PUT {{baseUrl}}/users/{{userId}}
 Content-Type: {{contentType}}
 
 {
-    "role": "admin"
+    "full_name": "Ashley"
 }
 
 
 ### Delete user
-@userId = 1
+@userId = 5
 DELETE {{baseUrl}}/users/{{userId}}
 Accept: {{contentType}}
 

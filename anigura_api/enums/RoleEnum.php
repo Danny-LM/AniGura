@@ -2,6 +2,6 @@
 namespace Enums;
 
 enum RoleEnum: string {
-    case USER = "customer";
+    case USER = "user";
     case ADMIN = "admin";
 }

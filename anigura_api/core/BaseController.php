@@ -13,10 +13,6 @@ abstract class BaseController {
         $this->json(200, $data, $msg);
     }
 
-    protected function error(string $msg, int $code = 400): void {
-        $this->json($code, null, $msg);
-    }
-
     protected function getBody(): array {
         $json = file_get_contents("php://input");
         if (empty($json)) return [];
@@ -28,5 +24,9 @@ abstract class BaseController {
         }
 
         return $data ?? [];
+    }
+
+    protected function validate(array $data, array $rules): array {
+        return Validator::validate($data, $rules);
     }
 }
