@@ -1,0 +1,37 @@
+# publishers.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@publisherId = 2
+
+
+### List publishers
+GET {{baseUrl}}/publishers
+Accept: {{contentType}}
+
+
+### Create publisher
+POST {{baseUrl}}/publishers
+Content-Type: {{contentType}}
+
+{
+    "name": "Viz"
+}
+
+
+### Get specific publisher
+GET {{baseUrl}}/publishers/{{publisherId}}
+Accept: {{contentType}}
+
+
+### Update publisher (Partial)
+PATCH  {{baseUrl}}/publishers/{{publisherId}}
+Content-Type: {{contentType}}
+
+{
+    "name": "Viz Media"
+}
+
+
+### Delete publisher
+DELETE {{baseUrl}}/publishers/{{publisherId}}
+Accept: {{contentType}}
