@@ -1,0 +1,130 @@
+#!/usr/bin/env php
+<?php
+
+if ($argc < 3 || $argv[1] !== 'make:resource') {
+    echo "Usage: php anigura make:resource [Name]\n";
+    echo "Example: php anigura make:resource Product\n";
+    exit(1);
+}
+
+$name = ucfirst($argv[2]);
+$tableName = strtolower($name) . "s";
+$variableName = lcfirst($name);
+
+$files = [
+    "models/{$name}Model.php" => "<?php
+namespace Models;
+
+use Core\BaseModel;
+
+class {$name}Model extends BaseModel {
+    protected \$table = \"{$tableName}\";
+    protected \$primaryKey = \"id\";
+}
+",
+
+    "services/{$name}Service.php" => "<?php
+namespace Services;
+
+use Exception;
+use Models\\{$name}Model;
+
+class {$name}Service {
+    private \$model;
+
+    public function __construct({$name}Model \$model) {
+        \$this->model = \$model;
+    }
+
+    public function findAll() {
+        return \$this->model->all();
+    }
+
+    public function find(int \$id) {
+        \$item = \$this->model->find(\$id);
+        if (!\$item) throw new Exception(\"{$name} not found\", 404);
+
+        return \$item;
+    }
+
+    public function create(array \$data) {
+        return \$this->model->save(\$data);
+    }
+
+    public function update(int \$id, array \$data) {
+        if (!\$this->model->exists(\$id)) throw new Exception(\"{$name} not found\", 404);
+
+        return \$this->model->update(\$id, \$data);
+    }
+
+    public function delete(int \$id) {
+        if (!\$this->model->exists(\$id)) throw new Exception(\"{$name} not found\", 404);
+
+        return \$this->model->delete(\$id);
+    }
+}
+",
+
+    "controllers/{$name}Controller.php" => "<?php
+namespace Controllers;
+
+use Exception;
+use Core\BaseController;
+use Services\\{$name}Service;
+
+class {$name}Controller extends BaseController {
+    private \$service;
+
+    public function __construct({$name}Service \$service) {
+        \$this->service = \$service;
+    }
+
+    public function index(): void {
+        \$this->ok(\$this->service->findAll());
+    }
+
+    public function show(\$id): void {
+        \$this->validate([\"id\" => \$id], [\"id\" => \"num\"]);
+        \$this->ok(\$this->service->find((int)\$id));
+    }
+
+    public function store(): void {
+        \$data = \$this->getBody();
+        // TODO: Apply validation rules using \$this->validate()
+        $validated = \$this->validate($data, []);
+        if (empty($validated)) throw new Exception(\"No valid data provided\", 400);
+
+        \$id = \$this->service->create($validated);
+        \$this->json(201, [\"id\" => \$id], \"{$name} created successfully\");
+    }
+
+    public function update(int \$id): void {
+        \$this->validate([\"id\" => \$id], [\"id\" => \"num\"]);
+        \$data = \$this->getBody();
+        // TODO: Apply validation rules using \$this->validate()
+        \$validated = \$this->validate($data, []);
+        if (empty($validated)) throw new Exception(\"No valid fields provided for update\", 400);
+
+        \$this->service->update(\$id, \$validated());
+        \$this->ok(null, \"{$name} updated successfully\");
+    }
+
+    public function destroy(int \$id): void {
+        \$this->validate([\"id\" => \$id], [\"id\" => \"num\"]);
+        \$this->service->delete(\$id);
+        \$this->ok(null, \"{$name} deleted successfully\");
+    }
+}
+"
+];
+
+foreach ($files as $path => $content) {
+    if (!file_exists($path)) {
+        file_put_contents($path, $content);
+        echo "[CREATED] $path\n";
+    } else {
+        echo "[SKIPPED] $path (already exists)\n";
+    }
+}
+
+echo "\n[SUCCESS] Don't forget to register the routes and dependencies in index.php.\n";

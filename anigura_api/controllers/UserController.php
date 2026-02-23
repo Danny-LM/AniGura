@@ -6,21 +6,21 @@ use Core\BaseController;
 use Services\UserService;
 
 class UserController extends BaseController {
-    private $userService;
+    private $service;
 
-    public function __construct(UserService $userService) {
-        $this->userService = $userService;
+    public function __construct(UserService $service) {
+        $this->service = $service;
     }
 
     public function index(): void {
-        $users = $this->userService->findAll();
+        $users = $this->service->findAll();
         $this->ok($users, "Users retrieved successfully");
     }
 
     public function show($id): void {
         $this->validate(["id" => $id], [ "id" => "num" ]);
 
-        $user = $this->userService->find((int)$id);
+        $user = $this->service->find((int)$id);
         $this->ok($user);
     }
 
@@ -35,7 +35,7 @@ class UserController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $userId = $this->userService->create($validated);
+        $userId = $this->service->create($validated);
         $this->json(201, ["id" => $userId], "User created");
     }
 
@@ -50,14 +50,14 @@ class UserController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
 
-        $this->userService->update($id, $validated);
+        $this->service->update($id, $validated);
         $this->ok(null, "User updated");
     }
 
     public function destroy(int $id) {
         $this->validate(["id" => $id], [ "id" => "num" ]);
         
-        $this->userService->delete($id);
+        $this->service->delete($id);
         $this->ok(null, "User deleted");
     }
 
@@ -68,7 +68,7 @@ class UserController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $user = $this->userService->getByEmail($validated["email"]);
+        $user = $this->service->getByEmail($validated["email"]);
         if (!$user) throw new Exception("User email not found", 404);
         $this->ok($user);
     }
@@ -80,7 +80,7 @@ class UserController extends BaseController {
             "password" => "!null|min:8|max:255",
         ]);
         
-        $this->userService->verifyPassword($validated);
+        $this->service->verifyPassword($validated);
         $this->ok(null, "Login successful");
     }
 }

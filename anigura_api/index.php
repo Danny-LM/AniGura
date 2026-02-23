@@ -4,13 +4,16 @@ Core\Autoloader::register();
 
 use Core\{ Config, Response, Router };
 use Models\{
-    UserModel
+    UserModel,
+    FranchiseModel
 };
 use Services\{
-    UserService
+    UserService,
+    FranchiseService
 };
 use Controllers\{
-    UserController
+    UserController,
+    FranchiseController
 };
 
 try {
@@ -49,6 +52,15 @@ $router->post("/users/search", fn() => $userController->search());
 $router->post("/auth/login", fn() => $userController->checkCredentials());
 $router->patch("/users/:id", fn($id) => $userController->update((int)$id));
 $router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
+
+$franchiseModel = new FranchiseModel();
+$franchiseService = new FranchiseService($franchiseModel);
+$franchiseController = new FranchiseController($franchiseService);
+$router->get("/franchises",  [$franchiseController, "index"]);
+$router->get("/franchises/:id", fn($id) => $franchiseController->show((int)$id));
+$router->post("/franchises", [$franchiseController, "store"]);
+$router->patch("/franchises/:id", fn($id) => $franchiseController->update((int)$id));
+$router->delete("/franchises/:id", fn($id) => $franchiseController->destroy((int)$id));
 
 
 $router->run();

@@ -6,10 +6,10 @@ use Models\UserModel;
 use Enums\RoleEnum;
 
 class UserService {
-    private $userModel;
+    private $model;
 
-    public function __construct(UserModel $userModel) {
-        $this->userModel = $userModel;
+    public function __construct(UserModel $model) {
+        $this->model = $model;
     }
 
     public function create(array $data) {
@@ -17,18 +17,18 @@ class UserService {
 
         $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
-        return $this->userModel->save($data);
+        return $this->model->save($data);
     }
 
     public function find(int $id) {
-        $user = $this->userModel->find($id);
+        $user = $this->model->find($id);
         if (!$user) throw new Exception("User not found", 404);
 
         return $user;
     }
 
     public function findAll() {
-        $users = $this->userModel->all();
+        $users = $this->model->all();
         return array_map(function($user) {
             unset($user['password']);
             return $user;
@@ -36,27 +36,27 @@ class UserService {
     }
 
     public function update(int $id, array $data) {
-        if (!$this->userModel->exists($id)) throw new Exception("User not found", 404);
+        if (!$this->model->exists($id)) throw new Exception("User not found", 404);
         $this->validateAndConvertRole($data);
 
-        return $this->userModel->update($id, $data);
+        return $this->model->update($id, $data);
     }
 
     public function delete(int $id) {
-        if (!$this->userModel->exists($id)) throw new Exception("User not found", 404);
+        if (!$this->model->exists($id)) throw new Exception("User not found", 404);
 
-        return $this->userModel->delete($id);
+        return $this->model->delete($id);
     }
 
     public function getByEmail(string $email) {
-        $user = $this->userModel->findByEmail($email);
+        $user = $this->model->findByEmail($email);
         if (!$user) throw new Exception("User with email $email not found", 404);
 
         return $user;
     }
 
     public function verifyPassword(array $data) {
-        $user = $this->userModel->getAuthData($data["email"]);
+        $user = $this->model->getAuthData($data["email"]);
         if (!$user || !password_verify($data["password"], $user["password"])) {
             throw new Exception("Invalid credentials", 401);
         }
