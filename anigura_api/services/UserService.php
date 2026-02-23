@@ -53,7 +53,7 @@ class UserService {
 
     public function verifyPassword(array $data) {
         $user = $this->userModel->getAuthData($data["email"]);
-        if (!$user || password_verify($data["password"], $user["password"])) {
+        if (!$user || !password_verify($data["password"], $user["password"])) {
             throw new Exception("Invalid credentials", 401);
         }
 
