@@ -105,7 +105,7 @@ class {$name}Controller extends BaseController {
         \$validated = \$this->validate($data, []);
         if (empty($validated)) throw new Exception(\"No valid fields provided for update\", 400);
 
-        \$this->service->update(\$id, \$validated());
+        \$this->service->update(\$id, \$validated);
         \$this->ok(null, \"{$name} updated successfully\");
     }
 
