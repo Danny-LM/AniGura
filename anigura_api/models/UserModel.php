@@ -8,7 +8,6 @@ class UserModel extends BaseModel {
     protected $primaryKey = "id";
 
     public function findByEmail(string $email): array|false {
-
         $sql = "SELECT id, role, full_name, email, rfc, created_at
                 FROM {$this->table} WHERE email = :email";
         $stmt = $this->db->prepare($sql);

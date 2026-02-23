@@ -80,7 +80,7 @@ abstract class BaseModel {
     }
 
     public function exists(int $id): bool {
-        $sql = "SELECT 1 FROM {$this->table}
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table}
                 WHERE {$this->primaryKey} = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":id", $id);

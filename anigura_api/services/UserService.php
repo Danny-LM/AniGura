@@ -28,7 +28,11 @@ class UserService {
     }
 
     public function findAll() {
-        return $this->userModel->all();
+        $users = $this->userModel->all();
+        return array_map(function($user) {
+            unset($user['password']);
+            return $user;
+        }, $users);
     }
 
     public function update(int $id, array $data) {
