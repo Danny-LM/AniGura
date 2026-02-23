@@ -91,10 +91,10 @@ class {$name}Controller extends BaseController {
     public function store(): void {
         \$data = \$this->getBody();
         // TODO: Apply validation rules using \$this->validate()
-        $validated = \$this->validate($data, []);
-        if (empty($validated)) throw new Exception(\"No valid data provided\", 400);
+        \$validated = \$this->validate(\$data, []);
+        if (empty(\$validated)) throw new Exception(\"No valid data provided\", 400);
 
-        \$id = \$this->service->create($validated);
+        \$id = \$this->service->create(\$validated);
         \$this->json(201, [\"id\" => \$id], \"{$name} created successfully\");
     }
 
@@ -102,8 +102,8 @@ class {$name}Controller extends BaseController {
         \$this->validate([\"id\" => \$id], [\"id\" => \"num\"]);
         \$data = \$this->getBody();
         // TODO: Apply validation rules using \$this->validate()
-        \$validated = \$this->validate($data, []);
-        if (empty($validated)) throw new Exception(\"No valid fields provided for update\", 400);
+        \$validated = \$this->validate(\$data, []);
+        if (empty(\$validated)) throw new Exception(\"No valid fields provided for update\", 400);
 
         \$this->service->update(\$id, \$validated);
         \$this->ok(null, \"{$name} updated successfully\");
