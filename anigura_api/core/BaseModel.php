@@ -122,4 +122,16 @@ abstract class BaseModel {
         
         return $value;
     }
+
+    public function findInIds(array $ids) {
+        if (empty($ids)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT * FROM {$this->table}
+                WHERE {$this->primaryKey} IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($ids);
+
+        return $stmt->fetchAll();
+    }
 }

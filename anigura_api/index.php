@@ -4,30 +4,20 @@ Core\Autoloader::register();
 
 use Core\{ Config, Response, Router };
 use Models\{
-    UserModel,
-    FranchiseModel,
-    PublisherModel,
-    AddressModel,
-    MediaEntryModel,
+    UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
+    ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
 };
 use Services\{
-    UserService,
-    FranchiseService,
-    PublisherService,
-    AddressService,
-    MediaEntryService,
+    UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
+    ProductService,
 };
 use Controllers\{
-    UserController,
-    FranchiseController,
-    PublisherController,
-    AddressController,
-    MediaEntryController,
+    UserController, FranchiseController, PublisherController, AddressController, MediaEntryController,
+    ProductController,
 };
 
 try {
     Config::load(__DIR__ . "/.env");
-
 } catch (\Exception $e) {
     Response::json(500, null, "Critical Error: " . $e->getMessage());
 }
@@ -98,6 +88,18 @@ $router->get("/media_entries/:id", fn($id) => $mediaEntryController->show((int)$
 $router->post("/media_entries", [$mediaEntryController, "store"]);
 $router->patch("/media_entries/:id", fn($id) => $mediaEntryController->update((int)$id));
 $router->delete("/media_entries/:id", fn($id) => $mediaEntryController->destroy((int)$id));
+
+$productModel = new ProductModel();
+$mangaModel = new MangaVolumeDetailModel();
+$figureModel = new FigureDetailModel();
+$setboxModel = new SetboxDetailModel();
+$productService = new ProductService($productModel, $mangaModel, $figureModel, $setboxModel);
+$productController = new ProductController($productService);
+$router->get("/products",  [$productController, "index"]);
+$router->get("/products/:id", fn($id) => $productController->show((int)$id));
+$router->post("/products", [$productController, "store"]);
+$router->patch("/products/:id", fn($id) => $productController->update((int)$id));
+$router->delete("/products/:id", fn($id) => $productController->destroy((int)$id));
 
 
 $router->run();
