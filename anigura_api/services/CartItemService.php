@@ -1,0 +1,66 @@
+<?php
+namespace Services;
+
+use Exception;
+use Models\{ CartItemModel, ProductModel };
+
+class CartItemService {
+    private $model, $productModel;
+
+    public function __construct(CartItemModel $model, ProductModel $productModel) {
+        $this->model = $model;
+        $this->productModel = $productModel;
+    }
+
+    public function getCart(int $userId) {
+        return $this->model->getFullCart($userId);
+    }
+
+    public function addItem(int $userId, array $data) {
+        $productId = $data["id_product"];
+        $quantity = $data["quantity"] ?? 1;
+
+        return $this->model->transaction(function() use ($userId, $productId, $quantity) {
+            $product = $this->productModel->find($productId);
+
+            if (!$product || !$product["active"]) throw new Exception("Product unavailable", 404);
+            if ($product["stock"] < $quantity) throw new Exception("Only {$product['stock']} units available", 400);
+
+            $existing = $this->model->where(["id_user" => $userId, "id_product" => $productId]);
+
+            if (!empty($existing)) {
+                $item = $existing[0];
+                $newQty = $item["quantity"] + $quantity;
+
+                if ($product["stock"] < $newQty) throw new Exception("Max stock reached in cart", 400);
+
+                return $this->model->update($item["id"], ["quantity" => $newQty]);
+            }
+
+            return $this->model->save([
+                "id_user"    => $userId,
+                "id_product" => $productId,
+                "quantity"   => $quantity
+            ]);
+        });
+    }
+
+    public function updateQty(int $itemId, int $userId, int $qty) {
+        $item = $this->model->find($itemId);
+
+        if (!$item || $item["id_user"] != $userId) throw new Exception("Item not found", 404);
+        if ($qty <= 0) return $this->model->delete($itemId);
+
+        $product = $this->productModel->find($item["id_product"]);
+        if ($product["stock"] < $qty) throw new Exception("Only {$product['stock']} units available", 400);
+
+        return $this->model->update($itemId, ["quantity" => $qty]);
+    }
+
+    public function removeItem(int $userId, int $itemId) {
+        $item = $this->model->find($itemId);
+        if (!$item || $item["id_user"] != $userId) throw new Exception("Item not found", 404);
+
+        return $this->model->delete($itemId);
+    }
+}

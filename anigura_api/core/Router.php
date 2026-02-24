@@ -45,7 +45,7 @@ class Router {
 
         try {
             foreach ($this->routes[$method] ?? [] as $routePath => $callback) {
-                $pattern = "#^" . preg_replace('/:[a-zA-Z0-9]+/', '([^/]+)', $routePath) . "$#";
+                $pattern = "#^" . preg_replace('/:[a-zA-Z0-9_]+/', '([^/]+)', $routePath) . "$#";
     
                 if (preg_match($pattern, $path, $matches)) {
                     array_shift($matches);

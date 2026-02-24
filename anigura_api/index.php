@@ -6,14 +6,15 @@ use Core\{ Config, Response, Router };
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
+    CartItemModel,
 };
 use Services\{
     UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
-    ProductService,
+    ProductService, CartItemService,
 };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController, MediaEntryController,
-    ProductController,
+    ProductController, CartItemController,
 };
 
 try {
@@ -100,6 +101,18 @@ $router->get("/products/:id", fn($id) => $productController->show((int)$id));
 $router->post("/products", [$productController, "store"]);
 $router->patch("/products/:id", fn($id) => $productController->update((int)$id));
 $router->delete("/products/:id", fn($id) => $productController->destroy((int)$id));
+
+$cartItemModel = new CartItemModel();
+$cartItemService = new CartItemService($cartItemModel, $productModel);
+$cartItemController = new CartItemController($cartItemService);
+$router->get("/cart/:id_user", fn($id) => $cartItemController->show((int)$id));
+$router->post("/cart/:id_user", fn($id) => $cartItemController->store((int)$id));
+$router->patch("/cart/:id_user/:id_item", 
+    fn($id_user, $id_item) => $cartItemController->update((int)$id_user, (int)$id_item)
+);
+$router->delete("/cart/:id_user/:id_item", 
+    fn($id_user, $id_item) => $cartItemController->destroy((int)$id_user, (int)$id_item)
+);
 
 
 $router->run();

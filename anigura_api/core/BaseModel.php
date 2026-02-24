@@ -119,6 +119,7 @@ abstract class BaseModel {
     private function formatValue($value) {
         if (is_bool($value)) return $value ? 1 : 0;
         if ($value instanceof \UnitEnum) return $value->value;
+        if (is_array($value)) return json_encode($value);
         
         return $value;
     }
@@ -133,5 +134,26 @@ abstract class BaseModel {
         $stmt->execute($ids);
 
         return $stmt->fetchAll();
+    }
+
+    public function where(array $criteria): array {
+        if (empty($criteria)) return $this->all();
+
+        $keys = array_keys($criteria);
+        $whereParts = array_map(function($key) {
+            return "{$key} = :{$key}";
+        }, $keys);
+
+        $whereSql = implode(" AND ", $whereParts);
+        $sql = "SELECT * FROM {$this->table} WHERE {$whereSql}";
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($criteria as $key => $value) {
+            $stmt->bindValue(":{$key}", $this->formatValue($value));
+        }
+
+        $stmt->execute();
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
