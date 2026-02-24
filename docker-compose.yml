@@ -40,5 +40,19 @@ services:
     depends_on:
       - db
 
+  front:
+    build: ./anigura
+    container_name: anigura
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./anigura:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
 volumes:
   db_data:
