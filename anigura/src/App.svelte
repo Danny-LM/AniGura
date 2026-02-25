@@ -3,10 +3,11 @@
     import { API } from "./lib/api";
     import type { Product } from "./lib/types";
     import Navbar from "./components/Navbar.svelte";
+    import ProductGrid from "./components/ProductGrid.svelte";
 
     let products = $state<Product[]>([]);
     let error = $state<string | null>(null);
-    let activeFilter = $state<string>("all");
+    let activeFilter = $state("all");
 
     onMount(async () => {
         try {
@@ -27,9 +28,11 @@
     {#if error}
         <p class="error">{error}</p>
     {:else}
-        <p style="color: var(--text-secondary)">
-            Filter: {activeFilter} - Products: {products.length}
-        </p>
+        <ProductGrid
+            {products}
+            {activeFilter}
+            onAddToCart={(p) => console.log("cart:", p.id)}
+        />
     {/if}
 </main>
 

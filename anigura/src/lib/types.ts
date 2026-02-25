@@ -8,6 +8,7 @@ export interface Response<T> {
 }
 
 export interface Product {
+    id: number,
     id_franchise: number,
     product_type: "manga_volume"|"setbox"|"figure",
     name: string,
