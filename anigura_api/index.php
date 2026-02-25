@@ -38,6 +38,36 @@ if (Config::get("APP_DEBUG") === "true") {
     error_reporting(E_ALL);
 }
 
+$userModel = new UserModel();
+$franchiseModel = new FranchiseModel();
+$publisherModel = new PublisherModel();
+$addressModel = new AddressModel();
+$mediaEntryModel = new MediaEntryModel();
+$productModel = new ProductModel();
+$mangaModel = new MangaVolumeDetailModel();
+$figureModel = new FigureDetailModel();
+$setboxModel = new SetboxDetailModel();
+$cartItemModel = new CartItemModel();
+$imageModel = new ProductImageModel();
+
+$userService = new UserService($userModel);
+$franchiseService = new FranchiseService($franchiseModel);
+$publisherService = new PublisherService($publisherModel);
+$addressService = new AddressService($addressModel, $userModel);
+$mediaEntryService = new MediaEntryService($mediaEntryModel, $franchiseModel);
+$productService = new ProductService($productModel, $mangaModel, $figureModel, $setboxModel, $imageModel);
+$cartItemService = new CartItemService($cartItemModel, $productModel);
+$imageService = new ProductImageService($imageModel, $productModel);
+
+$userController = new UserController($userService);
+$franchiseController = new FranchiseController($franchiseService);
+$publisherController = new PublisherController($publisherService);
+$addressController = new AddressController($addressService);
+$mediaEntryController = new MediaEntryController($mediaEntryService);
+$productController = new ProductController($productService);
+$cartItemController = new CartItemController($cartItemService);
+$imageController = new ProductImageController($imageService);
+
 $router = new Router();
 $router->get("/", function () {
     $apiInfo = [
@@ -51,9 +81,7 @@ $router->get("/", function () {
     Response::json(200, $apiInfo, "Welcome to Anigura API system.");
 });
 
-$userModel = new UserModel();
-$userService = new UserService($userModel);
-$userController = new UserController($userService);
+
 $router->get("/users",  [$userController, "index"]);
 $router->get("/users/:id", fn($id) => $userController->show((int)$id));
 $router->post("/users", [$userController, "store"]);
@@ -62,27 +90,18 @@ $router->post("/auth/login", fn() => $userController->checkCredentials());
 $router->patch("/users/:id", fn($id) => $userController->update((int)$id));
 $router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
 
-$franchiseModel = new FranchiseModel();
-$franchiseService = new FranchiseService($franchiseModel);
-$franchiseController = new FranchiseController($franchiseService);
 $router->get("/franchises",  [$franchiseController, "index"]);
 $router->get("/franchises/:id", fn($id) => $franchiseController->show((int)$id));
 $router->post("/franchises", [$franchiseController, "store"]);
 $router->patch("/franchises/:id", fn($id) => $franchiseController->update((int)$id));
 $router->delete("/franchises/:id", fn($id) => $franchiseController->destroy((int)$id));
 
-$publisherModel = new PublisherModel();
-$publisherService = new PublisherService($publisherModel);
-$publisherController = new PublisherController($publisherService);
 $router->get("/publishers",  [$publisherController, "index"]);
 $router->get("/publishers/:id", fn($id) => $publisherController->show((int)$id));
 $router->post("/publishers", [$publisherController, "store"]);
 $router->patch("/publishers/:id", fn($id) => $publisherController->update((int)$id));
 $router->delete("/publishers/:id", fn($id) => $publisherController->destroy((int)$id));
 
-$addressModel = new AddressModel();
-$addressService = new AddressService($addressModel, $userModel);
-$addressController = new AddressController($addressService);
 $router->get("/addresses",  [$addressController, "index"]);
 $router->get("/addresses/user/:userId", fn($userId) => $addressController->userDefault((int)$userId));
 $router->get("/addresses/:id", fn($id) => $addressController->show((int)$id));
@@ -90,30 +109,18 @@ $router->post("/addresses", [$addressController, "store"]);
 $router->patch("/addresses/:id", fn($id) => $addressController->update((int)$id));
 $router->delete("/addresses/:id", fn($id) => $addressController->destroy((int)$id));
 
-$mediaEntryModel = new MediaEntryModel();
-$mediaEntryService = new MediaEntryService($mediaEntryModel, $franchiseModel);
-$mediaEntryController = new MediaEntryController($mediaEntryService);
 $router->get("/media_entries",  [$mediaEntryController, "index"]);
 $router->get("/media_entries/:id", fn($id) => $mediaEntryController->show((int)$id));
 $router->post("/media_entries", [$mediaEntryController, "store"]);
 $router->patch("/media_entries/:id", fn($id) => $mediaEntryController->update((int)$id));
 $router->delete("/media_entries/:id", fn($id) => $mediaEntryController->destroy((int)$id));
 
-$productModel = new ProductModel();
-$mangaModel = new MangaVolumeDetailModel();
-$figureModel = new FigureDetailModel();
-$setboxModel = new SetboxDetailModel();
-$productService = new ProductService($productModel, $mangaModel, $figureModel, $setboxModel);
-$productController = new ProductController($productService);
 $router->get("/products",  [$productController, "index"]);
 $router->get("/products/:id", fn($id) => $productController->show((int)$id));
 $router->post("/products", [$productController, "store"]);
 $router->patch("/products/:id", fn($id) => $productController->update((int)$id));
 $router->delete("/products/:id", fn($id) => $productController->destroy((int)$id));
 
-$cartItemModel = new CartItemModel();
-$cartItemService = new CartItemService($cartItemModel, $productModel);
-$cartItemController = new CartItemController($cartItemService);
 $router->get("/cart/:id_user", fn($id) => $cartItemController->show((int)$id));
 $router->post("/cart/:id_user", fn($id) => $cartItemController->store((int)$id));
 $router->patch("/cart/:id_user/:id_item",
@@ -123,16 +130,13 @@ $router->delete("/cart/:id_user/:id_item",
     fn($id_user, $id_item) => $cartItemController->destroy((int)$id_user, (int)$id_item)
 );
 
-$productImageModel = new ProductImageModel();
-$productImageService = new ProductImageService($productImageModel, $productModel);
-$productImageController = new ProductImageController($productImageService);
-$router->get("/images",  [$productImageController, "index"]);
-$router->get("/images/:id", fn($id) => $productImageController->show((int)$id));
-$router->get("/images/cover/:id", fn($id) => $productImageController->productCover((int)$id));
-$router->get("/images/product/:id", fn($id) => $productImageController->productImages((int)$id));
-$router->post("/images", [$productImageController, "store"]);
-$router->patch("/images/:id", fn($id) => $productImageController->update((int)$id));
-$router->delete("/images/:id", fn($id) => $productImageController->destroy((int)$id));
+$router->get("/images",  [$imageController, "index"]);
+$router->get("/images/:id", fn($id) => $imageController->show((int)$id));
+$router->get("/images/cover/:id", fn($id) => $imageController->productCover((int)$id));
+$router->get("/images/product/:id", fn($id) => $imageController->productImages((int)$id));
+$router->post("/images", [$imageController, "store"]);
+$router->patch("/images/:id", fn($id) => $imageController->update((int)$id));
+$router->delete("/images/:id", fn($id) => $imageController->destroy((int)$id));
 
 
 $router->run();

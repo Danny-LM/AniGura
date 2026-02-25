@@ -60,12 +60,11 @@ class ProductImageService {
     }
 
     public function findProductCover(int $productId) {
-        $result = $this->model->where([ "id_product" => $productId, "is_cover" => 1 ]);
-        return $result[0] ?? null;
+        return $this->model->findProductCover($productId);
     }
 
     public function findByProduct(int $productId) {
-        return $this->model->where([ "id_product" => $productId ]);
+        return $this->model->findByProduct($productId);
     }
 
     private function unsetOtherCovers(int $productId) {

@@ -1,9 +1,9 @@
 # product_images.http
 @baseUrl = http://localhost:8000
 @contentType = application/json
-@productId = 1
+@productId = 7
 
- 
+
 ### List all images
 GET {{baseUrl}}/images
 Accept: {{contentType}}

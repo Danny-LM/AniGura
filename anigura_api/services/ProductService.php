@@ -3,20 +3,22 @@ namespace Services;
 
 use Core\Validator;
 use Exception;
-use Models\{ ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel };
+use Models\{ ProductModel, MangaVolumeDetailModel, FigureDetailModel, ProductImageModel, SetboxDetailModel };
 
 class ProductService {
-    private $model;
+    private $model, $imageModel;
     private $detailMap;
 
     public function __construct(
         ProductModel $model,
         MangaVolumeDetailModel $mangaModel,
         FigureDetailModel $figureModel,
-        SetboxDetailModel $setboxModel
+        SetboxDetailModel $setboxModel,
+        ProductImageModel $imageModel
     ) {
 
         $this->model = $model;
+        $this->imageModel = $imageModel;
         $this->detailMap = [
             "manga_volume" => [
                 "model" => $mangaModel,
@@ -48,6 +50,13 @@ class ProductService {
         $products = $this->model->all();
         if (empty($products)) return [];
 
+        $allCovers = $this->imageModel->where(["is_cover" => 1]);
+        $coversMap = [];
+
+        foreach ($allCovers as $img) {
+            $coversMap[$img["id_product"]] = $img["image_url"];
+        }
+
         $groupedByType = [];
         foreach ($products as $p) {
             $groupedByType[$p["product_type"]][] = $p["id"];
@@ -63,8 +72,9 @@ class ProductService {
             }
         }
 
-        return array_map(function($p) use ($allDetails) {
+        return array_map(function($p) use ($allDetails, $coversMap) {
             $p["details"] = $allDetails[$p["product_type"]][$p["id"]] ?? null;
+            $p["cover_image"] = $coversMap[$p["id"]] ?? null;
             return $p;
         }, $products);
     }
@@ -72,6 +82,9 @@ class ProductService {
     public function find(int $id) {
         $product = $this->model->find($id);
         if (!$product) throw new Exception("Product not found", 404);
+
+        $covers = $this->imageModel->where(["id_product" => $id, "is_cover" => 1]);
+        $product["cover_image"] = !empty($covers) ? $covers[0]["image_url"] : "null";
 
         $type = $product["product_type"];
         if (isset($this->detailMap[$type])) {
