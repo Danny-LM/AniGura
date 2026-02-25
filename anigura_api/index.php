@@ -15,15 +15,15 @@ use Core\{ Config, Response, Router };
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
-    CartItemModel,
+    CartItemModel, ProductImageModel,
 };
 use Services\{
     UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
-    ProductService, CartItemService,
+    ProductService, CartItemService, ProductImageService,
 };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController, MediaEntryController,
-    ProductController, CartItemController,
+    ProductController, CartItemController, ProductImageController,
 };
 
 try {
@@ -122,6 +122,17 @@ $router->patch("/cart/:id_user/:id_item",
 $router->delete("/cart/:id_user/:id_item", 
     fn($id_user, $id_item) => $cartItemController->destroy((int)$id_user, (int)$id_item)
 );
+
+$productImageModel = new ProductImageModel();
+$productImageService = new ProductImageService($productImageModel, $productModel);
+$productImageController = new ProductImageController($productImageService);
+$router->get("/images",  [$productImageController, "index"]);
+$router->get("/images/:id", fn($id) => $productImageController->show((int)$id));
+$router->get("/images/cover/:id", fn($id) => $productImageController->productCover((int)$id));
+$router->get("/images/product/:id", fn($id) => $productImageController->productImages((int)$id));
+$router->post("/images", [$productImageController, "store"]);
+$router->patch("/images/:id", fn($id) => $productImageController->update((int)$id));
+$router->delete("/images/:id", fn($id) => $productImageController->destroy((int)$id));
 
 
 $router->run();
