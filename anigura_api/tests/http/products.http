@@ -60,7 +60,7 @@ Content-Type: {{contentType}}
         "content": "Vol. 1-3 manga, exclusive art cards x5, B2 poster"
     }
 }
-        
+
 # "id_franchise" => "!null|num",
 # "product_type" => "",
 # "name"         => "!null|max:255",
@@ -131,4 +131,3 @@ Content-Type: {{contentType}}
 ### Delete product
 DELETE {{baseUrl}}/products/{{productId}}
 Accept: {{contentType}}
-
