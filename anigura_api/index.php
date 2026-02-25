@@ -116,7 +116,7 @@ $cartItemService = new CartItemService($cartItemModel, $productModel);
 $cartItemController = new CartItemController($cartItemService);
 $router->get("/cart/:id_user", fn($id) => $cartItemController->show((int)$id));
 $router->post("/cart/:id_user", fn($id) => $cartItemController->store((int)$id));
-$router->patch("/cart/:id_user/:id_item", 
+$router->patch("/cart/:id_user/:id_item",
     fn($id_user, $id_item) => $cartItemController->update((int)$id_user, (int)$id_item)
 );
 $router->delete("/cart/:id_user/:id_item", 
