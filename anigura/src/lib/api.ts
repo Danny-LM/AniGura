@@ -16,6 +16,17 @@ async function request<T>(endpoint: string, method = "GET", body?: unknown): Pro
     return result.data;
 }
 
+async function requestVoid(endpoint: string, method = "GET", body?: unknown): Promise<void> {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : undefined
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.msg || "API Server Error");
+}
+
 export const API = {
     // Auth
     register:   ($full_name: string, $email: string, $password: string) =>
@@ -31,9 +42,9 @@ export const API = {
     // Cart
     getCart:    (userId: number) => request<CartItem[]>(`/cart/${userId}`),
     addToCart:  (userId: number, productId: number, quantity = 1) => 
-        request<CartItem>(`/cart/${userId}`, "POST", { id_product: productId, quantity }),
+        requestVoid(`/cart/${userId}`, "POST", { id_product: productId, quantity }),
     updateQty:  (userId: number, itemId: number, quantity: number) =>
-        request<CartItem>(`/cart/${userId}/${itemId}`, "PATCH", { quantity }),
+        requestVoid(`/cart/${userId}/${itemId}`, "PATCH", { quantity }),
     removeItem: (userId: number, itemId: number) =>
-        request<void>(`/cart/${userId}/${itemId}`, "DELETE"),
+        requestVoid(`/cart/${userId}/${itemId}`, "DELETE"),
 };

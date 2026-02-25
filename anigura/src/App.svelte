@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { API } from "./lib/api";
-    import { authStore, isLoggedIn } from "./lib/stores/authStore";
-    import { cartCount } from "./lib/stores/cartStore";
-    import { CartService } from "./lib/services/cartService";
     import type { Product } from "./lib/types";
-    import AuthModal from "./components/AuthModal.svelte";
     import Home from "./components/Home.svelte";
+    import { cartCount } from "./lib/stores/cartStore";
+    import CartView from "./components/CartView.svelte";
+    import AuthModal from "./components/AuthModal.svelte";
+    import { CartService } from "./lib/services/cartService";
+    import { authStore, isLoggedIn } from "./lib/stores/authStore";
 
     type View = "home" | "cart";
 
@@ -74,6 +75,11 @@
     />
 {:else if view === "cart"}
     <!-- CartView viene después -->
+    <CartView
+        onBack={() => view = "home"}
+        onAuthClick={() => authOpen = true}
+        onLogout={handleLogout}
+    />
 {/if}
 
 <AuthModal

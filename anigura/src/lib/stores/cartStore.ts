@@ -20,9 +20,11 @@ function createCartStore() {
         }),
 
         updateQty: (cartItemId: number, quantity: number) => update((items) => 
-            items.map(
-                (i) => i.cart_item_id === cartItemId ? { ...i, quantity } : i
-            )
+            items.map((i) => {
+                if (i.cart_item_id !== cartItemId) return i;
+                const subtotal = (Number(i.unit_price) * quantity).toFixed(2);
+                return { ...i, quantity, subtotal };
+            })
         ),
 
         remove: (cartItemId: number) => update((items) =>

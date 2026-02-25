@@ -9,9 +9,13 @@
         onCartClick:    () => void;
         onAuthClick:    () => void;
         onLogout:       () => void;
+        minimal?:       boolean;
     }
 
-    let { activeFilter, cartCount, onFilterChange, onCartClick, onAuthClick, onLogout }: Props = $props();
+    let { 
+        activeFilter, cartCount, onFilterChange, onCartClick,
+        onAuthClick,onLogout, minimal = false
+    }: Props = $props();
 
     const FILTERS = [
         { label: "ALL",      value: "all"           },
@@ -28,30 +32,34 @@
         <span class="brand-accent">ANI</span>GURA
     </a>
 
-    <!-- Filters -->
-    <ul class="filters">
-        {#each FILTERS as f}
-            <li>
-                <button 
-                    class="filter-btn"
-                    class:active={activeFilter === f.value}
-                    onclick={() => onFilterChange(f.value)}
-                >
-                    {f.label}
-                </button>
-            </li>            
-        {/each}
-    </ul>
+    {#if !minimal}
+        <!-- Filters -->
+        <ul class="filters">
+            {#each FILTERS as f}
+                <li>
+                    <button 
+                        class="filter-btn"
+                        class:active={activeFilter === f.value}
+                        onclick={() => onFilterChange(f.value)}
+                    >
+                        {f.label}
+                    </button>
+                </li>            
+            {/each}
+        </ul>
+    {/if}
 
     <!-- Actions -->
     <div class="actions">
-        <!-- Cart -->
-        <button class="icon-btn" aria-label="Cart" disabled={!$isLoggedIn} onclick={onCartClick}>
-            <Icon name="cart" />
-            {#if cartCount > 0}
-                <span class="badge">{cartCount}</span>
-            {/if}
-        </button>
+        {#if !minimal}
+            <!-- Cart -->
+            <button class="icon-btn" aria-label="Cart" disabled={!$isLoggedIn} onclick={onCartClick}>
+                <Icon name="cart" />
+                {#if cartCount > 0}
+                    <span class="badge">{cartCount}</span>
+                {/if}
+            </button>
+        {/if}
 
         {#if $isLoggedIn}
             <button class="icon-btn user-btn" onclick={onLogout} aria-label="logout">
