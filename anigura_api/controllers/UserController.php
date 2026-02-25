@@ -35,8 +35,8 @@ class UserController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $userId = $this->service->create($validated);
-        $this->json(201, ["id" => $userId], "User created");
+        $user = $this->service->create($validated);
+        $this->json(201, $user, "Account created successfully");
     }
 
     public function update(int $id): void {
@@ -80,7 +80,7 @@ class UserController extends BaseController {
             "password" => "!null|min:8|max:255",
         ]);
         
-        $this->service->verifyPassword($validated);
-        $this->ok(null, "Login successful");
+        $user = $this->service->verifyPassword($validated);
+        $this->ok($user, "Login successful");
     }
 }

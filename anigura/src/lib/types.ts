@@ -7,6 +7,13 @@ export interface Response<T> {
     timestamp: Date
 }
 
+export interface User {
+    id: number,
+    role: "user" | "admin",
+    full_name: string,
+    email: string
+}
+
 export interface Product {
     id: number,
     id_franchise: number,
@@ -22,6 +29,20 @@ export interface Product {
     details: MangaDetails|BoxsetDetails|FigureDetails,
     created_at: Date,
     updated_at: Date
+}
+
+export interface CartItem {
+    cart_item_id: number,
+    id_product: number,
+    name: string,
+    cover_image: string|null,
+    quantity: number,
+    stock: number,
+    active: boolean,
+    price: string,
+    discount: string,
+    unit_price: string,
+    subtotal: string,
 }
 
 interface MangaDetails {

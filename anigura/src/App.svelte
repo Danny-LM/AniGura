@@ -1,13 +1,21 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { API } from "./lib/api";
+    import { authStore, isLoggedIn } from "./lib/stores/authStore";
+    import { cartCount } from "./lib/stores/cartStore";
+    import { CartService } from "./lib/services/cartService";
     import type { Product } from "./lib/types";
-    import Navbar from "./components/Navbar.svelte";
-    import ProductGrid from "./components/ProductGrid.svelte";
+    import AuthModal from "./components/AuthModal.svelte";
+    import Home from "./components/Home.svelte";
 
-    let products = $state<Product[]>([]);
-    let error = $state<string | null>(null);
+    type View = "home" | "cart";
+
+    let view         = $state<View>("home");
+    let products     = $state<Product[]>([]);
+    let error        = $state<string | null>(null);
     let activeFilter = $state("all");
+    let authOpen     = $state(false);
+    let pendingProduct = $state<Product | null>(null);
 
     onMount(async () => {
         try {
@@ -15,35 +23,61 @@
         } catch (e) {
             error = e instanceof Error ? e.message : "Error";
         }
+
+        if ($isLoggedIn) await CartService.load();
     });
+
+    async function handleAddToCart(product: Product) {
+        if (!$isLoggedIn) {
+            pendingProduct = product;
+            authOpen = true;
+            return;
+        }
+        try {
+            await CartService.add(product.id);
+        } catch (e) {
+            console.error("Failed to add to cart:", e);
+        }
+    }
+
+    async function handleAuthSuccess() {
+        authOpen = false;
+        await CartService.load();
+        if (pendingProduct) {
+            try {
+                await CartService.add(pendingProduct.id);
+            } catch (e) {
+                console.error("Failed to add pending product:", e);
+            } finally {
+                pendingProduct = null;
+            }
+        }
+    }
+
+    function handleLogout() {
+        authStore.logout();
+        CartService.clear();
+    }
 </script>
 
-<Navbar
-    activeFilter={activeFilter}
-    cartCount={0}
-    onFilterChange={(f) => activeFilter = f}
+{#if view === "home"}
+    <Home
+        {products}
+        {error}
+        {activeFilter}
+        cartCount={$cartCount}
+        onFilterChange={(f) => activeFilter = f}
+        onAddToCart={handleAddToCart}
+        onCartClick={() => view = "cart"}
+        onAuthClick={() => authOpen = true}
+        onLogout={handleLogout}
+    />
+{:else if view === "cart"}
+    <!-- CartView viene después -->
+{/if}
+
+<AuthModal
+    open={authOpen}
+    onClose={() => { authOpen = false; pendingProduct = null; }}
+    onSuccess={handleAuthSuccess}
 />
-
-<main class="main">
-    {#if error}
-        <p class="error">{error}</p>
-    {:else}
-        <ProductGrid
-            {products}
-            {activeFilter}
-            onAddToCart={(p) => console.log("cart:", p.id)}
-        />
-    {/if}
-</main>
-
-<style>
-    .main {
-        padding: var(--space-5);
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .error {
-        color: var(--dager);
-    }
-</style>

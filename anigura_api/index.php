@@ -84,9 +84,9 @@ $router->get("/", function () {
 
 $router->get("/users",  [$userController, "index"]);
 $router->get("/users/:id", fn($id) => $userController->show((int)$id));
-$router->post("/users", [$userController, "store"]);
-$router->post("/users/search", fn() => $userController->search());
+$router->post("/auth/register", [$userController, "store"]);
 $router->post("/auth/login", fn() => $userController->checkCredentials());
+$router->post("/users/search", fn() => $userController->search());
 $router->patch("/users/:id", fn($id) => $userController->update((int)$id));
 $router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
 

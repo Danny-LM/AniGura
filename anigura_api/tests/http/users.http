@@ -10,7 +10,7 @@ Accept: {{contentType}}
 
 
 ### Create user
-POST {{baseUrl}}/users
+POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
@@ -57,6 +57,7 @@ Content-Type: {{contentType}}
     "email": "dannylm@anigura.mx"
 }
 
+
 ### Login - Success Case
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
@@ -66,11 +67,12 @@ Content-Type: {{contentType}}
     "password": "Pass4321!"
 }
 
-### Login - Fail Case (wrong password)
+
+### Login - Fail Case
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "email": "dannylm@anigura.mx",
-    "password": "pas4321"
+    "email": "danny@anigura.mx",
+    "password": "pass4321!"
 }

@@ -1,13 +1,17 @@
 <script lang="ts">
     import Icon from "./Icon.svelte";
+    import { authStore, isLoggedIn } from "../lib/stores/authStore";
 
     interface Props {
-        activeFilter: string,
-        cartCount: number;
+        activeFilter:   string,
+        cartCount:      number;
         onFilterChange: (filter: string) => void;
+        onCartClick:    () => void;
+        onAuthClick:    () => void;
+        onLogout:       () => void;
     }
 
-    let { activeFilter, cartCount, onFilterChange }: Props = $props();
+    let { activeFilter, cartCount, onFilterChange, onCartClick, onAuthClick, onLogout }: Props = $props();
 
     const FILTERS = [
         { label: "ALL",      value: "all"           },
@@ -42,16 +46,26 @@
     <!-- Actions -->
     <div class="actions">
         <!-- Cart -->
-        <button class="icon-btn" aria-label="Cart">
+        <button class="icon-btn" aria-label="Cart" disabled={!$isLoggedIn} onclick={onCartClick}>
             <Icon name="cart" />
             {#if cartCount > 0}
                 <span class="badge">{cartCount}</span>
             {/if}
         </button>
 
-        <button class="icon-btn" aria-label="Account">
-            <Icon name="account" />
-        </button>
+        {#if $isLoggedIn}
+            <button class="icon-btn user-btn" onclick={onLogout} aria-label="logout">
+                <span class="user-initials">
+                    {$authStore?.full_name.charAt(0).toUpperCase()}
+                </span>
+            </button>
+
+        {:else}
+            <button class="icon-btn" aria-label="Account" onclick={onAuthClick}>
+                <Icon name="account" />
+            </button>
+        {/if}
+
     </div>
 </nav>
 
@@ -128,5 +142,20 @@
         font-size: 10px; font-weight: 700;
         border-radius: 999px;
         display: flex; align-items: center; justify-content: center;
+    }
+
+    .icon-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .user-btn {
+        background: var(--accent-soft);
+        border: 1px solid var(--border-accent);
+    }
+
+    .user-initials {
+        font-size: 13px; font-weight: 700;
+        color: var(--accent-light);
     }
 </style>

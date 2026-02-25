@@ -18,7 +18,7 @@ class UserModel extends BaseModel {
     }
 
     public function getAuthData(string $email): array|false {
-        $sql = "SELECT id, email, password
+        $sql = "SELECT id, role, full_name, email, password
                 FROM {$this->table} WHERE email = :email";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":email", $email);

@@ -17,7 +17,15 @@ class UserService {
 
         $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
-        return $this->model->save($data);
+        $id = $this->model->save($data);
+        $user = $this->model->find($id);
+
+        return [
+            "id"        => $user["id"],
+            "role"      => $user["role"],
+            "full_name" => $user["full_name"],
+            "email"     => $user["email"]
+        ];
     }
 
     public function find(int $id) {
@@ -60,6 +68,8 @@ class UserService {
         if (!$user || !password_verify($data["password"], $user["password"])) {
             throw new Exception("Invalid credentials", 401);
         }
+
+        unset($user["password"]);
 
         return $user;
     }

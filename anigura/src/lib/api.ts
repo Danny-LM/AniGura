@@ -1,4 +1,4 @@
-import type { Response, Product } from "./types";
+import type { Response, Product, User, CartItem } from "./types";
 
 const API_URL = "http://localhost:8000";
 
@@ -17,15 +17,23 @@ async function request<T>(endpoint: string, method = "GET", body?: unknown): Pro
 }
 
 export const API = {
+    // Auth
+    register:   ($full_name: string, $email: string, $password: string) =>
+        request<User>("/auth/register", "POST", { full_name: $full_name, email: $email, password: $password }),
+    login:      ($email: string, $password: string) =>
+        request<User>("/auth/login", "POST", { email: $email, password: $password }),
+
+
+    // Products
     getProducts: () => request<Product[]>("/products"),
     getProduct:  (id: number) => request<Product>(`/products/${id}`),
 
     // Cart
-    getCart:    (userId: number) => request(`/cart/${userId}`),
+    getCart:    (userId: number) => request<CartItem[]>(`/cart/${userId}`),
     addToCart:  (userId: number, productId: number, quantity = 1) => 
-        request(`/cart/${userId}`, "POST", { id_product: productId, quantity }),
+        request<CartItem>(`/cart/${userId}`, "POST", { id_product: productId, quantity }),
     updateQty:  (userId: number, itemId: number, quantity: number) =>
-        request(`/cart/${userId}/${itemId}`, "PATCH", { quantity }),
+        request<CartItem>(`/cart/${userId}/${itemId}`, "PATCH", { quantity }),
     removeItem: (userId: number, itemId: number) =>
-        request(`/cart/${userId}/${itemId}`, "DELETE"),
+        request<void>(`/cart/${userId}/${itemId}`, "DELETE"),
 };
