@@ -23,7 +23,6 @@ class ProductImageController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_product" => "!null|num",
             "image_url"  => "!null|max:500",
@@ -38,7 +37,6 @@ class ProductImageController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_product" => "num",
             "image_url"  => "max:500",

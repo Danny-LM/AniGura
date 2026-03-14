@@ -23,7 +23,6 @@ class RefreshTokenController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_user" => "!null|num",
             "token"   => "!null|max:255",
@@ -38,7 +37,6 @@ class RefreshTokenController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_user" => "num",
             "token"   => "max:255",

@@ -23,7 +23,6 @@ class PublisherController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [ "name" => "!null|max:255" ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
@@ -34,7 +33,6 @@ class PublisherController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [ "name" => "max:255" ]);
         if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
 

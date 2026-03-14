@@ -23,7 +23,6 @@ class FranchiseController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "name" => "!null|max:255",
             "synopsis" => ""
@@ -37,7 +36,6 @@ class FranchiseController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "name" => "max:255",
             "synopsis" => ""

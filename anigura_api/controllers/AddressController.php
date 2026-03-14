@@ -23,7 +23,6 @@ class AddressController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_user"    => "!null|num",
             "alias"      => "max:50",
@@ -42,7 +41,6 @@ class AddressController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_user"    => "num",
             "alias"      => "max:50",

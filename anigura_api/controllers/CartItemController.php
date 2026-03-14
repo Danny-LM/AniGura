@@ -23,7 +23,6 @@ class CartItemController extends BaseController {
         $this->validate(["id_user" => $id_user], ["id_user" => "!null|num"]);
         
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_product" => "!null|num",
             "quantity"   => "num"
@@ -41,7 +40,6 @@ class CartItemController extends BaseController {
         );
 
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "quantity" => "!null|num"
         ]);

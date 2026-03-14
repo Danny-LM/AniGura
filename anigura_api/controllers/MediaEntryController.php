@@ -23,7 +23,6 @@ class MediaEntryController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_franchise" => "!null|num",
             "media_type"   => "!null",
@@ -41,7 +40,6 @@ class MediaEntryController extends BaseController {
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [
             "id_franchise" => "num",
             "media_type"   => "",
