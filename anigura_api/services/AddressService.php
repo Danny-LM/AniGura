@@ -14,8 +14,8 @@ class AddressService implements IAddressService {
         $this->userModel = $userModel;
     }
 
-    public function findAll() {
-        return $this->model->all();
+    public function findAll(int $page = 1, int $limit = 20) {
+        return $this->model->all($page, $limit);
     }
 
     public function find(int $id) {

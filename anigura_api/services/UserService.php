@@ -37,8 +37,8 @@ class UserService {
         return $user;
     }
 
-    public function findAll() {
-        $users = $this->model->all();
+    public function findAll(int $page = 1, int $limit = 20) {
+        $users = $this->model->all($page, $limit);
 
         return array_map(function($user) {
             unset($user["password"]);

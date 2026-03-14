@@ -13,7 +13,8 @@ class MediaEntryController extends BaseController {
     }
 
     public function index(): void {
-        $this->ok($this->service->findAll());
+        $p = $this->getPagination();
+        $this->paginated($this->service->findAll($p["page"], $p["limit"]));
     }
 
     public function show($id): void {

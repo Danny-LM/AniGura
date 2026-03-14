@@ -29,4 +29,19 @@ abstract class BaseController {
     protected function validate(array $data, array $rules): array {
         return Validator::validate($data, $rules);
     }
+
+    protected function getPagination(): array {
+        $page = isset($_GET["page"]) && is_numeric($_GET["page"]) ? (int) $_GET["page"] : 1;
+        $limit = isset($_GET["limit"]) && is_numeric($_GET["limit"]) ? (int) $_GET["limit"] : 20;
+
+        if ($page < 1) $page = 1;
+        if ($limit < 1) $limit = 20;
+        if ($limit > 100) $limit = 50;
+
+        return ["page" => $page, "limit" => $limit];        
+    }
+
+    protected function paginated(array $data, string $msg = "Request success"): void {
+        $this->json(200, $data, $msg);
+    }
 }

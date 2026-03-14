@@ -23,21 +23,18 @@ class ProductService {
         $this->handlers = $handlers;
     }
 
-    public function findAll() {
-        $products = $this->model->all();
-
-        if (empty($products)) return [];
+    public function findAll(int $page = 1, int $limit = 20) {
+        $paginated = $this->model->all($page, $limit);
+        if (empty($paginated)) return $paginated;
 
         $allCovers = $this->imageModel->where(["is_cover" => 1]);
         $coversMap = [];
-
         foreach ($allCovers as $img) {
             $coversMap[$img["id_product"]] = $img["image_url"];
         }
 
         $groupedByType = [];
-
-        foreach ($products as $p) {
+        foreach ($paginated["results"] as $p) {
             $groupedByType[$p["product_type"]][] = $p["id"];
         }
 
@@ -45,19 +42,20 @@ class ProductService {
         foreach ($groupedByType as $type => $ids) {
             if (isset($this->handlers[$type])) {
                 $details = $this->handlers[$type]->getModel()->findInIds($ids);
-
                 foreach ($details as $d) {
                     $allDetails[$type][$d["id_product"]] = $d;
                 }
             }
         }
 
-        return array_map(function($p) use ($allDetails, $coversMap) {
+        $paginated["results"] = array_map(function($p) use ($allDetails, $coversMap) {
             $p["details"] = $allDetails[$p["product_type"]][$p["id"]] ?? null;
             $p["cover_image"] = $coversMap[$p["id"]] ?? null;
 
             return $p;
-        }, $products);
+        }, $paginated["results"]);
+
+        return $paginated;
     }
 
     public function find(int $id) {
