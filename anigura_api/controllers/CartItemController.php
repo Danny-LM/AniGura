@@ -60,4 +60,9 @@ class CartItemController extends BaseController {
         $this->service->removeItem($id_user, $id_item);
         $this->ok(null, "Item removed from cart");
     }
+
+    public function validateUserCart(int $id_user): void {
+        $this->validate(["id_user" => $id_user], ["id_user" => "num"]);
+        $this->ok($this->service->validateCart($id_user));
+    }
 }

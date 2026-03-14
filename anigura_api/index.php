@@ -210,6 +210,10 @@ $router->delete("/products/:id", function($id) use ($productController) {
 });
 
 // --- Cart ---
+$router->get("/cart/:id_user/validate", function($id) use ($cartItemController) {
+    AuthMiddleware::handle();
+    $cartItemController->validateUserCart((int)$id);
+});
 $router->get("/cart/:id_user", function($id) use ($cartItemController) {
     AuthMiddleware::handle();
     $cartItemController->show((int)$id);
