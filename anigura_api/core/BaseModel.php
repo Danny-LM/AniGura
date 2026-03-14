@@ -1,6 +1,8 @@
 <?php
 namespace Core;
 
+use Exception;
+
 abstract class BaseModel {
     protected $db;
     protected $table;
@@ -138,6 +140,12 @@ abstract class BaseModel {
 
     public function where(array $criteria): array {
         if (empty($criteria)) return $this->all();
+
+        foreach (array_keys($criteria) as $key) {
+            if (!preg_match('/^[a-zA-Z0-9_]+$/', $key)) {
+                throw new Exception("Invalid column name: {$key}", 400);
+            }
+        }
 
         $keys = array_keys($criteria);
         $whereParts = array_map(function($key) {

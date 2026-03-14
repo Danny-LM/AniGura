@@ -72,15 +72,4 @@ class UserController extends BaseController {
         if (!$user) throw new Exception("User email not found", 404);
         $this->ok($user);
     }
-
-    public function checkCredentials(): void {
-        $data = $this->getBody();
-        $validated = $this->validate($data, [
-            "email" => "!null|email|max:150",
-            "password" => "!null|min:8|max:255",
-        ]);
-        
-        $user = $this->service->verifyPassword($validated);
-        $this->ok($user, "Login successful");
-    }
 }

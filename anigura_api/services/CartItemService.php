@@ -63,4 +63,31 @@ class CartItemService {
 
         return $this->model->delete($itemId);
     }
+
+    public function validateCart(int $userId): array {
+        $items = $this->model->getFullCart($userId);
+
+        return array_map(function($item) {
+            $product = $this->productModel->find($item["id_product"]);
+
+            if (!$product || !$product["active"]) {
+                return array_merge($item, [
+                    "status"    => "unavailable",
+                    "available" => 0
+                ]);
+            }
+
+            if ($product["stock"] < $item["quantity"]) {
+                return array_merge($item, [
+                    "status"    => "insufficient",
+                    "available" => $product["stock"]
+                ]);
+            }
+
+            return array_merge($item, [
+                "status"    => "ok",
+                "available" => $product["stock"]
+            ]);
+        }, $items);
+    }
 }
