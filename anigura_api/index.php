@@ -17,6 +17,7 @@ use Models\{
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
     CartItemModel, ProductImageModel, RefreshTokenModel
 };
+use Services\Handlers\{ MangaVolumeDetailHandler, FigureDetailHandler, SetboxDetailHandler };
 use Services\{
     UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
     ProductService, CartItemService, ProductImageService, RefreshTokenService, AuthService
@@ -52,13 +53,22 @@ $cartItemModel      = new CartItemModel();
 $imageModel         = new ProductImageModel();
 $refreshTokenModel  = new RefreshTokenModel();
 
+// Service Handlers
+$mangaModel         = new MangaVolumeDetailModel();
+$figureModel        = new FigureDetailModel();
+$setboxModel        = new SetboxDetailModel();
+
 // Services
 $userService        = new UserService($userModel);
 $franchiseService   = new FranchiseService($franchiseModel);
 $publisherService   = new PublisherService($publisherModel);
 $addressService     = new AddressService($addressModel, $userModel);
 $mediaEntryService  = new MediaEntryService($mediaEntryModel, $franchiseModel);
-$productService     = new ProductService($productModel, $mangaModel, $figureModel, $setboxModel, $imageModel);
+$productService = new ProductService($productModel, $imageModel, [
+    "manga_volume" => $mangaHandler,
+    "figure"       => $figureHandler,
+    "setbox"       => $setboxHandler,
+]);
 $cartItemService    = new CartItemService($cartItemModel, $productModel);
 $imageService       = new ProductImageService($imageModel, $productModel);
 $refreshTokenService = new RefreshTokenService($refreshTokenModel, $userModel);
