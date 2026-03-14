@@ -44,4 +44,23 @@ class RefreshTokenService {
 
         return $this->model->delete($id);
     }
+
+    public function findByToken(string $token): array {
+        $data = $this->model->findByToken($token);
+        if (!$data) throw new Exception("Invalid refresh token", 401);
+        if (strtotime($data["expires_at"]) < time()) {
+            $this->model->delete($token);
+            throw new Exception("Refresh token expired", 401);
+        }
+
+        $user = $this->userModel->find($data["id_user"]);
+        if (!$user) throw new Exception("User not found", 401);
+
+        return array_merge($data, ["role" => $user["role"]]);
+    }
+
+    public function deleteByToken(string $token): void {
+        $deleted = $this->model->deleteByToken($token);
+        if (!$deleted) throw new Exception("Invalid refresh token", 401);
+    }
 }

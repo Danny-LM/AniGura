@@ -1,0 +1,46 @@
+<?php
+namespace Services;
+
+use Exception;
+use Models\{{NAME}}Model;
+{{USE_INTERFACE}}
+class {{NAME}}Service{{IMPLEMENTS}} {
+    public function __construct(private {{MODEL_TYPE}} $model) {}
+
+    // [BEGIN:index]
+    public function findAll() {
+        return $this->model->all();
+    }
+    // [END:index]
+
+    // [BEGIN:show]
+    public function find(int $id) {
+        $item = $this->model->find($id);
+        if (!$item) throw new Exception("{{NAME}} not found", 404);
+
+        return $item;
+    }
+    // [END:show]
+
+    // [BEGIN:store]
+    public function create(array $data) {
+        return $this->model->save($data);
+    }
+    // [END:store]
+
+    // [BEGIN:update]
+    public function update(int $id, array $data) {
+        if (!$this->model->exists($id)) throw new Exception("{{NAME}} not found", 404);
+
+        return $this->model->update($id, $data);
+    }
+    // [END:update]
+
+    // [BEGIN:destroy]
+    public function delete(int $id) {
+        if (!$this->model->exists($id)) throw new Exception("{{NAME}} not found", 404);
+        
+        return $this->model->delete($id);
+    }
+    // [END:destroy]
+}

@@ -1,0 +1,9 @@
+<?php
+namespace Models;
+
+use Core\BaseModel;
+{{USE_INTERFACE}}
+class {{NAME}}Model extends BaseModel{{IMPLEMENTS}} {
+    protected $table = "{{TABLE}}";
+    protected $primaryKey = "id";
+}

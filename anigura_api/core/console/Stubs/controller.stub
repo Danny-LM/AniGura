@@ -1,0 +1,54 @@
+<?php
+namespace Controllers;
+
+use Exception;
+use Core\BaseController;
+{{USE_SERVICE}}
+
+class {{NAME}}Controller extends BaseController {
+    public function __construct(private {{SERVICE_TYPE}} $service) {}
+
+    // [BEGIN:index]
+    public function index(): void {
+        $this->ok($this->service->findAll());
+    }
+    // [END:index]
+
+    // [BEGIN:show]
+    public function show($id): void {
+        $this->validate(["id" => $id], ["id" => "num"]);
+        $this->ok($this->service->find((int)$id));
+    }
+    // [END:show]
+
+    // [BEGIN:store]
+    public function store(): void {
+        $data = $this->getBody();
+        $validated = $this->validate($data, []);
+        if (empty($validated)) throw new Exception("No valid data provided", 400);
+
+        $id = $this->service->create($validated);
+        $this->json(201, ["id" => $id], "{{NAME}} created successfully");
+    }
+    // [END:store]
+
+    // [BEGIN:update]
+    public function update(int $id): void {
+        $this->validate(["id" => $id], ["id" => "num"]);
+        $data = $this->getBody();
+        $validated = $this->validate($data, []);
+        if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
+
+        $this->service->update($id, $validated);
+        $this->ok(null, "{{NAME}} updated successfully");
+    }
+    // [END:update]
+
+    // [BEGIN:destroy]
+    public function destroy(int $id): void {
+        $this->validate(["id" => $id], ["id" => "num"]);
+        $this->service->delete($id);
+        $this->ok(null, "{{NAME}} deleted successfully");
+    }
+    // [END:destroy]
+}

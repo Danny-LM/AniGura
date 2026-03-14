@@ -2,7 +2,6 @@
 namespace Services;
 
 use Exception;
-use Core\JwtHelper;
 use Models\UserModel;
 use Enums\RoleEnum;
 
@@ -33,13 +32,17 @@ class UserService {
         $user = $this->model->find($id);
         if (!$user) throw new Exception("User not found", 404);
 
+        unset($user["password"]);
+
         return $user;
     }
 
     public function findAll() {
         $users = $this->model->all();
+
         return array_map(function($user) {
-            unset($user['password']);
+            unset($user["password"]);
+
             return $user;
         }, $users);
     }

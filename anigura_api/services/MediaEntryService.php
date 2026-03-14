@@ -32,6 +32,8 @@ class MediaEntryService {
     }
 
     public function update(int $id, array $data) {
+        if (!$this->model->exists($id)) throw new Exception("MediaEntry not found", 404);
+        
         if (isset($data["id_franchise"]) && !$this->franchiseModel->exists($data["id_franchise"])) {
             throw new Exception("Franchise not found", 404);
         }
