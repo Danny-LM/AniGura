@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IAddressService;
 use Core\BaseController;
-use Services\AddressService;
+use Exception;
 
 class AddressController extends BaseController {
     private $service;
 
-    public function __construct(AddressService $service) {
+    public function __construct(IAddressService $service) {
         $this->service = $service;
     }
 

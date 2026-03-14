@@ -1,5 +1,12 @@
 <?php
-
+use Interfaces\Models\{
+    IUserModel, IFranchiseModel, IPublisherModel, IAddressModel, IMediaEntryModel,
+    IProductModel, ICartItemModel, IProductImageModel, IRefreshTokenModel
+};
+use Interfaces\Services\{
+    IUserService, IFranchiseService, IPublisherService, IAddressService, IMediaEntryService,
+    IProductService, ICartItemService, IProductImageService, IRefreshTokenService, IAuthService
+};
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
@@ -15,30 +22,31 @@ use Controllers\{
     ProductController, CartItemController, ProductImageController, AuthController
 };
 
-$container->bind(UserModel::class, fn() => new UserModel());
-$container->bind(FranchiseModel::class, fn() => new FranchiseModel());
-$container->bind(PublisherModel::class, fn() => new PublisherModel());
-$container->bind(AddressModel::class, fn() => new AddressModel());
-$container->bind(MediaEntryModel::class, fn() => new MediaEntryModel());
-$container->bind(ProductModel::class, fn() => new ProductModel());
-$container->bind(CartItemModel::class, fn() => new CartItemModel());
-$container->bind(ProductImageModel::class, fn() => new ProductImageModel());
-$container->bind(RefreshTokenModel::class, fn() => new RefreshTokenModel());
+// --- Models ---
+$container->bind(IUserModel::class,          fn() => new UserModel());
+$container->bind(IFranchiseModel::class,     fn() => new FranchiseModel());
+$container->bind(IPublisherModel::class,     fn() => new PublisherModel());
+$container->bind(IAddressModel::class,       fn() => new AddressModel());
+$container->bind(IMediaEntryModel::class,    fn() => new MediaEntryModel());
+$container->bind(IProductModel::class,       fn() => new ProductModel());
+$container->bind(ICartItemModel::class,      fn() => new CartItemModel());
+$container->bind(IProductImageModel::class,  fn() => new ProductImageModel());
+$container->bind(IRefreshTokenModel::class,  fn() => new RefreshTokenModel());
 
-$container->bind(UserService::class, fn($c) => new UserService($c->get(UserModel::class)));
-$container->bind(FranchiseService::class, fn($c) => new FranchiseService($c->get(FranchiseModel::class)));
-$container->bind(PublisherService::class, fn($c) => new PublisherService($c->get(PublisherModel::class)));
-$container->bind(AddressService::class, fn($c) => new AddressService($c->get(AddressModel::class), $c->get(UserModel::class)));
-$container->bind(MediaEntryService::class, fn($c) => new MediaEntryService($c->get(MediaEntryModel::class), $c->get(FranchiseModel::class)));
-$container->bind(CartItemService::class, fn($c) => new CartItemService($c->get(CartItemModel::class), $c->get(ProductModel::class)));
-$container->bind(ProductImageService::class, fn($c) => new ProductImageService($c->get(ProductImageModel::class), $c->get(ProductModel::class)));
-$container->bind(RefreshTokenService::class, fn($c) => new RefreshTokenService($c->get(RefreshTokenModel::class), $c->get(UserModel::class)));
-$container->bind(AuthService::class, fn($c) => new AuthService($c->get(UserModel::class), $c->get(RefreshTokenService::class)));
-
-$container->bind(ProductService::class, function($c) {
+// --- Services ---
+$container->bind(IUserService::class,        fn($c) => new UserService($c->get(IUserModel::class)));
+$container->bind(IFranchiseService::class,   fn($c) => new FranchiseService($c->get(IFranchiseModel::class)));
+$container->bind(IPublisherService::class,   fn($c) => new PublisherService($c->get(IPublisherModel::class)));
+$container->bind(IAddressService::class,     fn($c) => new AddressService($c->get(IAddressModel::class), $c->get(IUserModel::class)));
+$container->bind(IMediaEntryService::class,  fn($c) => new MediaEntryService($c->get(IMediaEntryModel::class), $c->get(IFranchiseModel::class)));
+$container->bind(ICartItemService::class,    fn($c) => new CartItemService($c->get(ICartItemModel::class), $c->get(IProductModel::class), $c->get(IUserModel::class)));
+$container->bind(IProductImageService::class,fn($c) => new ProductImageService($c->get(IProductImageModel::class), $c->get(IProductModel::class)));
+$container->bind(IRefreshTokenService::class,fn($c) => new RefreshTokenService($c->get(IRefreshTokenModel::class), $c->get(IUserModel::class)));
+$container->bind(IAuthService::class,        fn($c) => new AuthService($c->get(IUserModel::class), $c->get(IRefreshTokenService::class)));
+$container->bind(IProductService::class, function($c) {
     return new ProductService(
-        $c->get(ProductModel::class),
-        $c->get(ProductImageModel::class),
+        $c->get(IProductModel::class),
+        $c->get(IProductImageModel::class),
         [
             "manga_volume" => new MangaVolumeDetailHandler(new MangaVolumeDetailModel()),
             "figure"       => new FigureDetailHandler(new FigureDetailModel()),
@@ -47,12 +55,13 @@ $container->bind(ProductService::class, function($c) {
     );
 });
 
-$container->bind(UserController::class, fn($c) => new UserController($c->get(UserService::class)));
-$container->bind(FranchiseController::class, fn($c) => new FranchiseController($c->get(FranchiseService::class)));
-$container->bind(PublisherController::class, fn($c) => new PublisherController($c->get(PublisherService::class)));
-$container->bind(AddressController::class, fn($c) => new AddressController($c->get(AddressService::class)));
-$container->bind(MediaEntryController::class, fn($c) => new MediaEntryController($c->get(MediaEntryService::class)));
-$container->bind(ProductController::class, fn($c) => new ProductController($c->get(ProductService::class)));
-$container->bind(CartItemController::class, fn($c) => new CartItemController($c->get(CartItemService::class)));
-$container->bind(ProductImageController::class, fn($c) => new ProductImageController($c->get(ProductImageService::class)));
-$container->bind(AuthController::class, fn($c) => new AuthController($c->get(AuthService::class)));
+// --- Controllers ---
+$container->bind(UserController::class,         fn($c) => new UserController($c->get(IUserService::class)));
+$container->bind(FranchiseController::class,    fn($c) => new FranchiseController($c->get(IFranchiseService::class)));
+$container->bind(PublisherController::class,    fn($c) => new PublisherController($c->get(IPublisherService::class)));
+$container->bind(AddressController::class,      fn($c) => new AddressController($c->get(IAddressService::class)));
+$container->bind(MediaEntryController::class,   fn($c) => new MediaEntryController($c->get(IMediaEntryService::class)));
+$container->bind(ProductController::class,      fn($c) => new ProductController($c->get(IProductService::class)));
+$container->bind(CartItemController::class,     fn($c) => new CartItemController($c->get(ICartItemService::class)));
+$container->bind(ProductImageController::class, fn($c) => new ProductImageController($c->get(IProductImageService::class)));
+$container->bind(AuthController::class,         fn($c) => new AuthController($c->get(IAuthService::class)));

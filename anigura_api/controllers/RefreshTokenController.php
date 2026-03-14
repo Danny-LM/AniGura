@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IRefreshTokenService;
 use Core\BaseController;
-use Services\RefreshTokenService;
+use Exception;
 
 class RefreshTokenController extends BaseController {
     private $service;
 
-    public function __construct(RefreshTokenService $service) {
+    public function __construct(IRefreshTokenService $service) {
         $this->service = $service;
     }
 

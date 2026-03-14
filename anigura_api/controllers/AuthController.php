@@ -1,13 +1,13 @@
 <?php
 namespace Controllers;
 
+use Interfaces\Services\IAuthService;
 use Core\BaseController;
-use Services\AuthService;
 
 class AuthController extends BaseController {
     private $service;
 
-    public function __construct(AuthService $service) {
+    public function __construct(IAuthService $service) {
         $this->service = $service;
     }
 
