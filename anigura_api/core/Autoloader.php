@@ -8,8 +8,6 @@ class Autoloader {
             $path = str_replace("\\", DIRECTORY_SEPARATOR, $class);
             $file = __DIR__ . "/../" . str_replace("\\", "/", $path) . ".php";
 
-            $file = strtolower($file);
-
             if (file_exists($file)) {
                 require_once($file);
             }

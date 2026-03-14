@@ -1,0 +1,8 @@
+<?php
+namespace Interfaces\Models;
+
+use Core\IBaseModel;
+
+interface I{{NAME}}Model extends IBaseModel {
+    // Add custom {{NAME}} methods here
+}
