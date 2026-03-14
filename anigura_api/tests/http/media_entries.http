@@ -1,0 +1,54 @@
+# media_entries.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@mediaEntryId = 13
+
+
+### List media_entries
+GET {{baseUrl}}/media_entries
+Accept: {{contentType}}
+
+
+### Create media_entry
+POST {{baseUrl}}/media_entries
+Content-Type: {{contentType}}
+
+{
+    "id_franchise": 7,
+    "media_type": "anime",
+    "media_type": "manga",
+    "title": "Swor Art Onlne",
+    "author": "Reki Kawahara",
+    "episodes": 25
+}
+
+# "id_franchise" => "!null|num",
+# "media_type"   => "!null",
+# "title"        => "!null|max:255",
+# "author"       => "max:255",
+# "volumes"      => "num",
+# "episodes"     => "num",
+
+# media_type enum = manga, light_novel, anime, game
+
+
+### Get specific media_entry
+GET {{baseUrl}}/media_entries/{{mediaEntryId}}
+Accept: {{contentType}}
+
+
+### Update media_entry (Partial)
+PATCH  {{baseUrl}}/media_entries/{{mediaEntryId}}
+Content-Type: {{contentType}}
+
+{
+    "id_franchise": 9,
+    "name": "Sword Art Online",
+    "media_type": "anime"
+}
+
+
+### Delete media_entry
+DELETE {{baseUrl}}/media_entries/{{mediaEntryId}}
+Accept: {{contentType}}
+

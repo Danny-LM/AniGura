@@ -1,0 +1,133 @@
+# products.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@productId = 10
+
+
+### List products
+GET {{baseUrl}}/products
+Accept: {{contentType}}
+
+
+### Create product (manga)
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+    "id_franchise": 1,
+    "product_type": "manga_volume",
+    "name": "Frieren: Beyond Journey's End Vol. 1",
+    "description": "First volume of the acclaimed manga series.",
+    "price": 12.99,
+    "stock": 25,
+    "sku": "MNG-FRR-001",
+    "details": {
+        "id_publisher": 3,
+        "id_media": 1,
+        "volume": 1
+    }
+}
+
+# "id_franchise" => "!null|num",
+# "product_type" => "",
+# "name"         => "!null|max:255",
+# "description"  => "",
+# "price"        => "!null|num",
+# "discount"     => "num",
+# "stock"        => "!null|num",
+# "active"       => "bool",
+# "sku"          => "max:60",
+# "details"      => "!null" = {
+#     "id_publisher" => "!null|num",
+#     "id_media"     => "num", // def null
+#     "volume"       => "num" // def null
+# }
+
+
+### Create product (setbox)
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+    "id_franchise": 7,
+    "product_type": "setbox",
+    "name": "Oshi no Ko Collector's Box",
+    "description": "Limited collector's box including vol. 1-3, art cards and poster.",
+    "price": 49.99,
+    "stock": 15,
+    "sku": "SET-ONK-001",
+    "details": {
+        "content": "Vol. 1-3 manga, exclusive art cards x5, B2 poster"
+    }
+}
+
+# "id_franchise" => "!null|num",
+# "product_type" => "",
+# "name"         => "!null|max:255",
+# "description"  => "",
+# "price"        => "!null|num",
+# "discount"     => "num",
+# "stock"        => "!null|num",
+# "active"       => "bool",
+# "sku"          => "max:60",
+# "details"      => "!null" = {
+#     "id_media"     => "num", // def null
+#     "content"      => "", // def null
+#     "is_limited"   => "bool" // def: false
+# }
+
+
+### Create product (figure)
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+    "id_franchise": 1,
+    "product_type": "figure",
+    "name": "Frieren 1/7 Scale Figure - Good Smile",
+    "description": "Highly detailed 1/7 scale figure of Frieren in her iconic mage outfit.",
+    "price": 89.99,
+    "discount": 5.00,
+    "stock": 10,
+    "sku": "FIG-FRR-001",
+    "details": {
+        "brand": "Good Smile Company",
+        "scale": "1/7"
+    }
+}
+
+# "id_franchise" => "!null|num",
+# "product_type" => "",
+# "name"         => "!null|max:255",
+# "description"  => "",
+# "price"        => "!null|num",
+# "discount"     => "num",
+# "stock"        => "!null|num",
+# "active"       => "bool",
+# "sku"          => "max:60",
+# "details"      => "!null" = {
+#     "brand"        => "!null|max:100",
+#     "scale"        => "max:20" // def null
+# }
+
+
+### Get specific product
+GET {{baseUrl}}/products/{{productId}}
+Accept: {{contentType}}
+
+
+### Update product (Partial)
+PATCH  {{baseUrl}}/products/{{productId}}
+Content-Type: {{contentType}}
+
+{
+    "details": {
+        "id_media": 11,
+        "is_limited": true
+    }
+}
+
+
+### Delete product
+DELETE {{baseUrl}}/products/{{productId}}
+Accept: {{contentType}}
