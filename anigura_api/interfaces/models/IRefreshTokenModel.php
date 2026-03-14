@@ -1,5 +1,5 @@
 <?php
-namespace Core\Interfaces\Models;
+namespace Interfaces\Models;
 
 use Core\IBaseModel;
 

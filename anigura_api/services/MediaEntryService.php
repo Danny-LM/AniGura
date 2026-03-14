@@ -1,14 +1,15 @@
 <?php
 namespace Services;
 
-use Exception;
+use Interfaces\Models\{ IMediaEntryModel, IFranchiseModel };
+use Interfaces\Services\IMediaEntryService;
 use Enums\MediaTypeEnum;
-use Models\{ FranchiseModel, MediaEntryModel };
+use Exception;
 
-class MediaEntryService {
+class MediaEntryService implements IMediaEntryService {
     private $model, $franchiseModel;
 
-    public function __construct(MediaEntryModel $model, FranchiseModel $franchiseModel) {
+    public function __construct(IMediaEntryModel $model, IFranchiseModel $franchiseModel) {
         $this->model = $model;
         $this->franchiseModel = $franchiseModel;
     }

@@ -1,13 +1,14 @@
 <?php
 namespace Services;
 
+use Interfaces\Services\IFranchiseService;
+use Interfaces\Models\IFranchiseModel;
 use Exception;
-use Models\FranchiseModel;
 
-class FranchiseService {
+class FranchiseService implements IFranchiseService {
     private $model;
 
-    public function __construct(FranchiseModel $model) {
+    public function __construct(IFranchiseModel $model) {
         $this->model = $model;
     }
 

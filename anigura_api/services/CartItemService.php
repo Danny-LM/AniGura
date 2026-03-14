@@ -1,18 +1,56 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\{ ICartItemModel, IProductModel, IUserModel};
+use Interfaces\Services\ICartItemService;
 use Exception;
-use Models\{ CartItemModel, ProductModel };
 
-class CartItemService {
-    private $model, $productModel;
+class CartItemService implements ICartItemService {
+    private $model, $productModel, $userModel;
 
-    public function __construct(CartItemModel $model, ProductModel $productModel) {
+    public function __construct(ICartItemModel $model, IProductModel $productModel, IUserModel $userModel) {
         $this->model = $model;
         $this->productModel = $productModel;
     }
 
-    public function getCart(int $userId) {
+    public function findAll() {
+        return $this->model->all();
+    }
+
+    public function find(int $id) {
+        $item = $this->model->find($id);
+        if (!$item) throw new Exception("CartItem not found", 404);
+
+        return $item;
+    }
+
+    public function create(array $data) {
+        if (!$this->productModel->exists($data["id_product"])) throw new Exception("Product not found", 404);
+        if (!$this->userModel->exists($data["id_user"])) throw new Exception("User not found", 404);
+
+        return $this->model->save($data);
+    }
+
+    public function update(int $id, array $data) {
+        if (!$this->model->exists($id)) throw new Exception("CartItem not found", 404);
+
+        if (isset($data["id_product"]) && !$this->productModel->exists($data["id_product"])) {
+            throw new Exception("Product not found", 404);
+        }
+        if (isset($data["id_user"]) && !$this->userModel->exists($data["id_user"])) {
+            throw new Exception("User not found", 404);
+        }
+
+        return $this->model->update($id, $data);
+    }
+
+    public function delete(int $id) {
+        if (!$this->model->exists($id)) throw new Exception("CartItem not found", 404);
+
+        return $this->model->delete($id);
+    }
+
+    public function getCart(int $userId): array {
         return $this->model->getFullCart($userId);
     }
 

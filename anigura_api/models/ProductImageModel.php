@@ -2,8 +2,9 @@
 namespace Models;
 
 use Core\BaseModel;
+use Core\Interfaces\Models\IProductImageModel;
 
-class ProductImageModel extends BaseModel {
+class ProductImageModel extends BaseModel implements IProductImageModel {
     protected $table = "product_images";
     protected $primaryKey = "id";
 
@@ -12,7 +13,7 @@ class ProductImageModel extends BaseModel {
         return $result[0] ?? null;
     }
 
-    public function findByProduct(int $productId) {
+    public function findByProduct(int $productId): array {
         return $this->where([ "id_product" => $productId ]);
     }
 }

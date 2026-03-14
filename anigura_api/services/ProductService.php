@@ -1,17 +1,17 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\{ IProductModel, IProductImageModel };
+use Services\Handlers\ProductDetailHandlerInterface;
+use InvalidArgumentException;
 use Core\Validator;
 use Exception;
-use InvalidArgumentException;
-use Models\{ ProductModel, ProductImageModel };
-use Services\Handlers\ProductDetailHandlerInterface;
 
 class ProductService {
     private $model, $imageModel;
     private $handlers;
 
-    public function __construct(ProductModel $model, ProductImageModel $imageModel, array $handlers) {
+    public function __construct(IProductModel $model, IProductImageModel $imageModel, array $handlers) {
         foreach ($handlers as $type => $handler) {
             if (!$handler instanceof ProductDetailHandlerInterface) {
                 throw new InvalidArgumentException("Handler for type $type must implement ProductDetailHandlerInterface");

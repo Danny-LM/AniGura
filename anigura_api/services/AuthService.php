@@ -1,16 +1,15 @@
 <?php
 namespace Services;
 
-use Exception;
-use Models\UserModel;
+use Interfaces\Services\{ IRefreshTokenService, IAuthService };
+use Interfaces\Models\IUserModel;
 use Core\{ JwtHelper, Config };
-use Services\RefreshTokenService;
+use Exception;
 
-
-class AuthService {
+class AuthService implements IAuthService {
     private $userModel, $refreshService;
 
-    public function __construct(UserModel $userModel, RefreshTokenService $refreshService) {
+    public function __construct(IUserModel $userModel, IRefreshTokenService $refreshService) {
         $this->userModel = $userModel;
         $this->refreshService = $refreshService;
     }

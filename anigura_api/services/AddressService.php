@@ -1,14 +1,15 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\{ IAddressModel, IUserModel };
+use Interfaces\Services\IAddressService;
 use Exception;
-use Models\{ AddressModel, UserModel };
 
-class AddressService {
+class AddressService implements IAddressService {
     private $model;
     private $userModel;
 
-    public function __construct(AddressModel $model, UserModel $userModel) {
+    public function __construct(IAddressModel $model, IUserModel $userModel) {
         $this->model = $model;
         $this->userModel = $userModel;
     }

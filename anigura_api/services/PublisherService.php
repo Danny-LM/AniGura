@@ -1,13 +1,13 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\IPublisherModel;
 use Exception;
-use Models\PublisherModel;
 
 class PublisherService {
     private $model;
 
-    public function __construct(PublisherModel $model) {
+    public function __construct(IPublisherModel $model) {
         $this->model = $model;
     }
 

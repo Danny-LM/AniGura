@@ -1,13 +1,13 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\{ IRefreshTokenModel, IUserModel};
 use Exception;
-use Models\{RefreshTokenModel, UserModel };
 
 class RefreshTokenService {
     private $model, $userModel;
 
-    public function __construct(RefreshTokenModel $model, UserModel $userModel) {
+    public function __construct(IRefreshTokenModel $model, IUserModel $userModel) {
         $this->model = $model;
         $this->userModel = $userModel;
     }
