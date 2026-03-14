@@ -1,12 +1,14 @@
 <?php
-namespace Core;
+namespace Interfaces\Services;
 
-interface IBaseService {
+use Core\IBaseService;
+
+interface IPublisherService extends IBaseService {
     // [BEGIN:index]
     public function findAll();
     // [END:index]
 
-    // [BEGIN: show]
+    // [BEGIN:show]
     public function find(int $id);
     // [END:show]
 
@@ -19,6 +21,6 @@ interface IBaseService {
     // [END:update]
 
     // [BEGIN:destroy]
-    public function delete(int $id);
+    public function destroy(int $id);
     // [END:destroy]
 }

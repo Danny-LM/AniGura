@@ -1,13 +1,13 @@
 <?php
 namespace Services;
 
+use Interfaces\Models\{ IProductImageModel, IProductModel };
 use Exception;
-use Models\{ ProductImageModel, ProductModel };
 
 class ProductImageService {
     private $model, $productModel;
 
-    public function __construct(ProductImageModel $model, ProductModel $productModel) {
+    public function __construct(IProductImageModel $model, IProductModel $productModel) {
         $this->model = $model;
         $this->productModel = $productModel;
     }

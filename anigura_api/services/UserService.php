@@ -1,14 +1,14 @@
 <?php
 namespace Services;
 
-use Exception;
-use Models\UserModel;
+use Interfaces\Models\IUserModel;
 use Enums\RoleEnum;
+use Exception;
 
 class UserService {
     private $model;
 
-    public function __construct(UserModel $model) {
+    public function __construct(IUserModel $model) {
         $this->model = $model;
     }
 

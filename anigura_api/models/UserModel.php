@@ -2,8 +2,9 @@
 namespace Models;
 
 use Core\BaseModel;
+use Core\Interfaces\Models\IUserModel;
 
-class UserModel extends BaseModel {
+class UserModel extends BaseModel implements IUserModel {
     protected $table = "users";
     protected $primaryKey = "id";
 

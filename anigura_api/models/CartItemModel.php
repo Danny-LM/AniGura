@@ -2,12 +2,13 @@
 namespace Models;
 
 use Core\BaseModel;
+use Core\Interfaces\Models\ICartItemModel;
 
-class CartItemModel extends BaseModel {
+class CartItemModel extends BaseModel implements ICartItemModel {
     protected $table = "cart_items";
     protected $primaryKey = "id";
 
-    public function getFullCart(int $userId) {
+    public function getFullCart(int $userId): array {
         $sql = "SELECT ci.id as cart_item_id, ci.id_product, ci.quantity,
                        p.name, p.price, p.stock, p.active, p.discount,
                        ROUND(p.price * (1 - p.discount / 100), 2) as unit_price,

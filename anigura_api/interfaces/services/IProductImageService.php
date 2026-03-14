@@ -1,9 +1,9 @@
 <?php
-namespace Interfaces\Models;
+namespace Interfaces\Services;
 
-use Core\IBaseModel;
+use Core\IBaseService;
 
-interface IProductImageModel extends IBaseModel {
+interface IProductImageService extends IBaseService {
     public function findProductCover(int $productId);
     public function findByProduct(int $productId): array;
 }
