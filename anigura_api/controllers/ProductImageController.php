@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IProductImageService;
 use Core\BaseController;
-use Services\ProductImageService;
+use Exception;
 
 class ProductImageController extends BaseController {
     private $service;
 
-    public function __construct(ProductImageService $service) {
+    public function __construct(IProductImageService $service) {
         $this->service = $service;
     }
 

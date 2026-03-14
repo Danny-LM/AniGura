@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IPublisherService;
 use Core\BaseController;
-use Services\PublisherService;
+use Exception;
 
 class PublisherController extends BaseController {
     private $service;
 
-    public function __construct(PublisherService $service) {
+    public function __construct(IPublisherService $service) {
         $this->service = $service;
     }
 

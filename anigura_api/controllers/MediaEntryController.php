@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IMediaEntryService;
 use Core\BaseController;
-use Services\MediaEntryService;
+use Exception;
 
 class MediaEntryController extends BaseController {
     private $service;
 
-    public function __construct(MediaEntryService $service) {
+    public function __construct(IMediaEntryService $service) {
         $this->service = $service;
     }
 

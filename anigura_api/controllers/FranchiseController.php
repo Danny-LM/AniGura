@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IFranchiseService;
 use Core\BaseController;
-use Services\FranchiseService;
+use Exception;
 
 class FranchiseController extends BaseController {
     private $service;
 
-    public function __construct(FranchiseService $service) {
+    public function __construct(IFranchiseService $service) {
         $this->service = $service;
     }
 

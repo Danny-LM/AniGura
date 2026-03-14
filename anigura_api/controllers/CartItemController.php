@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\ICartItemService;
 use Core\BaseController;
-use Services\CartItemService;
+use Exception;
 
 class CartItemController extends BaseController {
     private $service;
 
-    public function __construct(CartItemService $service) {
+    public function __construct(ICartItemService $service) {
         $this->service = $service;
     }
 

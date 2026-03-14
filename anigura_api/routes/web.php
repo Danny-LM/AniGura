@@ -2,7 +2,8 @@
 use Core\{ Response, Config, AuthMiddleware };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController,
-    MediaEntryController, ProductController, CartItemController, ProductImageController, AuthController
+    MediaEntryController, ProductController, CartItemController, ProductImageController,
+    AuthController
 };
 
 // --- Info ---

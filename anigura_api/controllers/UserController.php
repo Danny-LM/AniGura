@@ -1,14 +1,14 @@
 <?php
 namespace Controllers;
 
-use Exception;
+use Interfaces\Services\IUserService;
 use Core\BaseController;
-use Services\UserService;
+use Exception;
 
 class UserController extends BaseController {
     private $service;
 
-    public function __construct(UserService $service) {
+    public function __construct(IUserService $service) {
         $this->service = $service;
     }
 
