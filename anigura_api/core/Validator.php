@@ -4,6 +4,7 @@ namespace Core;
 use Exception;
 
 class Validator {
+
     public static function validate(array $data, array $rules): array {
         $filteredData = [];
 
@@ -17,7 +18,7 @@ class Validator {
 
                 continue;
             }
-            
+
             $value = $data[$field];
 
             foreach ($rulesArray as $rule) {
@@ -43,11 +44,11 @@ class Validator {
                     if ($rule === "email" && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         throw new Exception("The field '$field' must be a valid email", 400);
                     }
-    
+
                     if ($rule === "num" && !is_numeric($value)) {
                         throw new Exception("The field '$field' must be numeric", 400);
                     }
-    
+
                     if ($rule === "bool" && !is_bool($value)) {
                         throw new Exception("The field '$field' must be a boolean", 400);
                     }

@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 require_once "core/Autoloader.php";
 Core\Autoloader::register();
 
-use Core\{ Config, Response, Router };
+use Core\{ Config, Response, Router, AuthMiddleware };
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
@@ -78,29 +78,81 @@ $router->get("/", function () {
         "docs"        => []
     ];
     
-    Response::json(200, $apiInfo, "Welcome to Anigura API system.");
+    Response::json(200, $apiInfo, "Welcome to Anigura API :D");
+});
+
+$router->post("/auth/register", [$userController, "store"]);
+$router->post("/auth/login", fn() => $userController->checkCredentials());
+$router->get("/users", function() use ($userController) {
+    AuthMiddleware::requireRole("admin");
+    $userController->index();
+});
+$router->get("/users/:id", function() use ($userController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $userController->show($id);
+});
+$router->post("/users/search", function() use ($userController) {
+    AuthMiddleware::handle();
+    $userController->searchByEmail();
+});
+$router->patch("/users/:id", function() use ($userController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $userController->update($id);
+});
+$router->delete("/users/:id", function() use ($userController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $userController->destroy($id);
 });
 
 
-$router->get("/users",  [$userController, "index"]);
-$router->get("/users/:id", fn($id) => $userController->show((int)$id));
-$router->post("/auth/register", [$userController, "store"]);
-$router->post("/auth/login", fn() => $userController->checkCredentials());
-$router->post("/users/search", fn() => $userController->search());
-$router->patch("/users/:id", fn($id) => $userController->update((int)$id));
-$router->delete("/users/:id", fn($id) => $userController->destroy((int)$id));
+$router->get("/franchises", function() use ($franchiseController) {
+    AuthMiddleware::handle();
+    $franchiseController->index();
+});
+$router->get("/franchises/:id", function() use ($franchiseController, $id) {
+    AuthMiddleware::handle();
+    $franchiseController->show($id);
+});
+$router->post("/franchises", function() use ($franchiseController) {
+    AuthMiddleware::requireRole("admin");
+    $franchiseController->store();
+});
+$router->patch("/franchises/:id", function() use ($franchiseController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $franchiseController->update($id);
+});
+$router->delete("/franchises/:id", function() use ($franchiseController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $franchiseController->destroy($id);
+});
 
-$router->get("/franchises",  [$franchiseController, "index"]);
-$router->get("/franchises/:id", fn($id) => $franchiseController->show((int)$id));
-$router->post("/franchises", [$franchiseController, "store"]);
-$router->patch("/franchises/:id", fn($id) => $franchiseController->update((int)$id));
-$router->delete("/franchises/:id", fn($id) => $franchiseController->destroy((int)$id));
 
-$router->get("/publishers",  [$publisherController, "index"]);
-$router->get("/publishers/:id", fn($id) => $publisherController->show((int)$id));
-$router->post("/publishers", [$publisherController, "store"]);
-$router->patch("/publishers/:id", fn($id) => $publisherController->update((int)$id));
-$router->delete("/publishers/:id", fn($id) => $publisherController->destroy((int)$id));
+$router->get("/publishers", function() use ($publisherController) {
+    AuthMiddleware::handle();
+    $publisherController->index();
+});
+$router->get("/publishers/:id", function() use ($publisherController, $id) {
+    AuthMiddleware::handle();
+    $publisherController->show($id);
+});
+$router->post("/publishers", function() use ($publisherController) {
+    AuthMiddleware::requireRole("admin");
+    $publisherController->store();
+});
+$router->patch("/publishers/:id", function() use ($publisherController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $publisherController->update($id);
+});
+$router->delete("/publishers/:id", function() use ($publisherController, $id) {
+    AuthMiddleware::requireRole("admin");
+    $publisherController->destroy($id);
+});
+
+// $router->get("/publishers",  [$publisherController, "index"]);
+// $router->get("/publishers/:id", fn($id) => $publisherController->show((int)$id));
+// $router->post("/publishers", [$publisherController, "store"]);
+// $router->patch("/publishers/:id", fn($id) => $publisherController->update((int)$id));
+// $router->delete("/publishers/:id", fn($id) => $publisherController->destroy((int)$id));
 
 $router->get("/addresses",  [$addressController, "index"]);
 $router->get("/addresses/user/:userId", fn($userId) => $addressController->userDefault((int)$userId));

@@ -2,6 +2,7 @@
 namespace Services;
 
 use Exception;
+use Core\JwtHelper;
 use Models\UserModel;
 use Enums\RoleEnum;
 
@@ -59,17 +60,6 @@ class UserService {
     public function getByEmail(string $email) {
         $user = $this->model->findByEmail($email);
         if (!$user) throw new Exception("User with email $email not found", 404);
-
-        return $user;
-    }
-
-    public function verifyPassword(array $data) {
-        $user = $this->model->getAuthData($data["email"]);
-        if (!$user || !password_verify($data["password"], $user["password"])) {
-            throw new Exception("Invalid credentials", 401);
-        }
-
-        unset($user["password"]);
 
         return $user;
     }

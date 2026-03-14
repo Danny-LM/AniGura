@@ -61,7 +61,7 @@ class UserController extends BaseController {
         $this->ok(null, "User deleted");
     }
 
-    public function search(): void {
+    public function searchByEmail(): void {
         $data = $this->getBody();
         $validated = $this->validate($data, [
             "email" => "!null|email|max:150",
