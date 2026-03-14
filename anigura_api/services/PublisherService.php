@@ -17,7 +17,7 @@ class PublisherService {
 
     public function find(int $id) {
         $item = $this->model->find($id);
-        if (!$item) throw new Exception("Publishers not found", 404);
+        if (!$item) throw new Exception("Publisher not found", 404);
 
         return $item;
     }
@@ -27,13 +27,13 @@ class PublisherService {
     }
 
     public function update(int $id, array $data) {
-        if (!$this->model->exists($id)) throw new Exception("Publishers not found", 404);
+        if (!$this->model->exists($id)) throw new Exception("Publisher not found", 404);
 
         return $this->model->update($id, $data);
     }
 
     public function delete(int $id) {
-        if (!$this->model->exists($id)) throw new Exception("Publishers not found", 404);
+        if (!$this->model->exists($id)) throw new Exception("Publisher not found", 404);
 
         return $this->model->delete($id);
     }

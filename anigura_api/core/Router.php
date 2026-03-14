@@ -60,6 +60,15 @@ class Router {
 
         } catch (Exception $e) {
             $code = is_numeric($e->getCode()) && $e->getCode() >= 400 ? $e->getCode() : 500;
+
+            if ($code === 500) {
+                Logger::error("Unhandled exception", [
+                    "message" => $e->getMessage(),
+                    "file"    => $e->getFile(),
+                    "line"    => $e->getLine(),
+                ]);
+            }
+            
             Response::json($code, null, $e->getMessage());
         }
     }
