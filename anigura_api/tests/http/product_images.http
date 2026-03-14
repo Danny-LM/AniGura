@@ -1,0 +1,52 @@
+# product_images.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@productId = 7
+
+
+### List all images
+GET {{baseUrl}}/images
+Accept: {{contentType}}
+
+
+### Get image by ID
+GET {{baseUrl}}/images/1
+Accept: {{contentType}}
+
+
+### Get cover image by product ID
+GET {{baseUrl}}/images/cover/{{productId}}
+Accept: {{contentType}}
+
+
+### Get all images by product ID
+GET {{baseUrl}}/images/product/{{productId}}
+Accept: {{contentType}}
+
+
+### Create a new image
+POST {{baseUrl}}/images
+Content-Type: {{contentType}}
+
+{
+    "id_product": 1,
+    "image_url": "https://example.com/image.jpg",
+}
+
+# "id_product" => "!null|num",
+# "image_url"  => "!null|max:500",
+# "is_cover"   => "bool"
+
+
+### Update image to be cover
+PATCH {{baseUrl}}/images/10
+Content-Type: {{contentType}}
+
+{
+    "is_cover": true
+}
+
+
+### Remove image
+DELETE {{baseUrl}}/images/11
+Accept: {{contentType}}

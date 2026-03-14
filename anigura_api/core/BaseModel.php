@@ -1,0 +1,159 @@
+<?php
+namespace Core;
+
+abstract class BaseModel {
+    protected $db;
+    protected $table;
+    protected $primaryKey = "id";
+
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+
+    public function save(array $data): int|false {
+        if (empty($data)) return false;
+
+        $cols = implode(", ", array_keys($data));
+        $placeholders = ":" . implode(", :", array_keys($data));
+
+        $sql = "INSERT INTO {$this->table} ($cols)
+                VALUES ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($data as $key => $value) {
+            $val = $this->formatValue($value);
+            $stmt->bindValue(":{$key}", $val);
+        }
+
+        return $stmt->execute() ? $this->db->lastInsertId() : false;
+    }
+    
+    public function find(int $id): array|false {
+        if (empty($id)) return false;
+
+        $sql = "SELECT * FROM {$this->table}
+                WHERE {$this->primaryKey} = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+
+        return $stmt->fetch();
+    }
+
+    public function all(): array {
+        $sql = "SELECT * FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    public function update(int $id, array $data): bool {
+        if (empty($data)) return false;
+
+        $fields = "";
+        foreach ($data as $key => $value) {
+            $fields .= "{$key} = :{$key}, ";
+        }
+        $fields = rtrim($fields, ", ");
+
+        $sql = "UPDATE {$this->table} SET {$fields} WHERE {$this->primaryKey} = :pk_id";
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($data as $key => $value) {
+            $val = $this->formatValue($value);
+            $stmt->bindValue(":{$key}", $val);
+        }
+        $stmt->bindValue(":pk_id", $id);
+
+        return $stmt->execute() ? true : false;
+    }
+
+    public function delete($id): bool {
+        $sql = "DELETE FROM {$this->table}
+                WHERE {$this->primaryKey} = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
+    }
+
+    public function exists(int $id): bool {
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table}
+                WHERE {$this->primaryKey} = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function transaction(callable $callback) {
+        try {
+            $this->db->beginTransaction();
+            $result = $callback();
+            $this->db->commit();
+
+            return $result;
+
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            throw $e;
+        }
+    }
+
+    public function findForUpdate(int $id): array|false {
+        if (empty($id)) return false;
+
+        $sql = "SELECT * FROM {$this->table}
+                WHERE {$this->primaryKey} = :id
+                FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
+
+        return $stmt->fetch();
+    }
+
+    private function formatValue($value) {
+        if (is_bool($value)) return $value ? 1 : 0;
+        if ($value instanceof \UnitEnum) return $value->value;
+        if (is_array($value)) return json_encode($value);
+        
+        return $value;
+    }
+
+    public function findInIds(array $ids) {
+        if (empty($ids)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT * FROM {$this->table}
+                WHERE {$this->primaryKey} IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($ids);
+
+        return $stmt->fetchAll();
+    }
+
+    public function where(array $criteria): array {
+        if (empty($criteria)) return $this->all();
+
+        $keys = array_keys($criteria);
+        $whereParts = array_map(function($key) {
+            return "{$key} = :{$key}";
+        }, $keys);
+
+        $whereSql = implode(" AND ", $whereParts);
+        $sql = "SELECT * FROM {$this->table} WHERE {$whereSql}";
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($criteria as $key => $value) {
+            $stmt->bindValue(":{$key}", $this->formatValue($value));
+        }
+
+        $stmt->execute();
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+}

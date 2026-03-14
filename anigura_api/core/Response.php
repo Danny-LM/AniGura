@@ -13,7 +13,7 @@ class Response {
             "msg" => $msg,
             "data" => $data,
             "timestamp" => date("Y-m-d H:i:s")
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        ], true);
 
         exit;
     }
