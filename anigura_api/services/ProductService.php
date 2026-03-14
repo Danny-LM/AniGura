@@ -84,7 +84,7 @@ class ProductService {
         if (!$product) throw new Exception("Product not found", 404);
 
         $covers = $this->imageModel->where(["id_product" => $id, "is_cover" => 1]);
-        $product["cover_image"] = !empty($covers) ? $covers[0]["image_url"] : "null";
+        $product["cover_image"] = !empty($covers) ? $covers[0]["image_url"] : null;
 
         $type = $product["product_type"];
         if (isset($this->detailMap[$type])) {
