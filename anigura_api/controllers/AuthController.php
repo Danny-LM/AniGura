@@ -1,7 +1,6 @@
 <?php
 namespace Controllers;
 
-use Exception;
 use Core\BaseController;
 use Services\AuthService;
 
