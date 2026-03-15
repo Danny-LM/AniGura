@@ -11,4 +11,5 @@ interface IBaseModel {
     public function findInIds(array $ids): array;
     public function where(array $criteria): array;
     public function transaction(callable $callback);
+    public function findForUpdate(int $id): array|false;
 }

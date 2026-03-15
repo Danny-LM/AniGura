@@ -1,25 +1,28 @@
 <?php
 use Interfaces\Models\{
     IUserModel, IFranchiseModel, IPublisherModel, IAddressModel, IMediaEntryModel,
-    IProductModel, ICartItemModel, IProductImageModel, IRefreshTokenModel
+    IProductModel, ICartItemModel, IProductImageModel, IRefreshTokenModel, IOrderModel,
+    IOrderDetailModel,
 };
 use Interfaces\Services\{
     IUserService, IFranchiseService, IPublisherService, IAddressService, IMediaEntryService,
-    IProductService, ICartItemService, IProductImageService, IRefreshTokenService, IAuthService
+    IProductService, ICartItemService, IProductImageService, IRefreshTokenService, IAuthService,
+    IOrderService,
 };
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
-    CartItemModel, ProductImageModel, RefreshTokenModel
+    CartItemModel, ProductImageModel, RefreshTokenModel, OrderModel, OrderDetailModel,
 };
 use Services\{
     UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
-    ProductService, CartItemService, ProductImageService, RefreshTokenService, AuthService
+    ProductService, CartItemService, ProductImageService, RefreshTokenService, AuthService,
+    OrderService,
 };
 use Services\Handlers\{ MangaVolumeDetailHandler, FigureDetailHandler, SetboxDetailHandler };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController, MediaEntryController,
-    ProductController, CartItemController, ProductImageController, AuthController
+    ProductController, CartItemController, ProductImageController, AuthController, OrderController,
 };
 
 // --- Models ---
@@ -32,6 +35,8 @@ $container->bind(IProductModel::class,       fn() => new ProductModel());
 $container->bind(ICartItemModel::class,      fn() => new CartItemModel());
 $container->bind(IProductImageModel::class,  fn() => new ProductImageModel());
 $container->bind(IRefreshTokenModel::class,  fn() => new RefreshTokenModel());
+$container->bind(IOrderModel::class,         fn() => new OrderModel());
+$container->bind(IOrderDetailModel::class, fn() => new OrderDetailModel());
 
 // --- Services ---
 $container->bind(IUserService::class,        fn($c) => new UserService($c->get(IUserModel::class)));
@@ -54,6 +59,14 @@ $container->bind(IProductService::class, function($c) {
         ]
     );
 });
+$container->bind(IOrderService::class, fn($c) => new OrderService(
+    $c->get(IOrderModel::class),
+    $c->get(IOrderDetailModel::class),
+    $c->get(ICartItemModel::class),
+    $c->get(IProductModel::class),
+    $c->get(IUserModel::class),
+    $c->get(IAddressModel::class)
+));
 
 // --- Controllers ---
 $container->bind(UserController::class,         fn($c) => new UserController($c->get(IUserService::class)));
@@ -65,3 +78,4 @@ $container->bind(ProductController::class,      fn($c) => new ProductController(
 $container->bind(CartItemController::class,     fn($c) => new CartItemController($c->get(ICartItemService::class)));
 $container->bind(ProductImageController::class, fn($c) => new ProductImageController($c->get(IProductImageService::class)));
 $container->bind(AuthController::class,         fn($c) => new AuthController($c->get(IAuthService::class)));
+$container->bind(OrderController::class, fn($c) => new OrderController($c->get(IOrderService::class)));
