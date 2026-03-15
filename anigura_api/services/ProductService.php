@@ -3,11 +3,12 @@ namespace Services;
 
 use Interfaces\Models\{ IProductModel, IProductImageModel };
 use Services\Handlers\ProductDetailHandlerInterface;
+use Interfaces\Services\IProductService;
 use InvalidArgumentException;
 use Core\Validator;
 use Exception;
 
-class ProductService {
+class ProductService implements IProductService {
     private $model, $imageModel;
     private $handlers;
 

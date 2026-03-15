@@ -1,0 +1,94 @@
+# franchises.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@franchiseId = 1
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM5NzkwLCJleHAiOjE3NzM1NDY5OTB9.dmbtYLf06oPVGR5w48UcDaGSoCkV--sKmM1Obop93Uc
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM1Mzk4MDQsImV4cCI6MTc3MzU0NzAwNH0.pZX-HJCSlMTDRbwFw6P6GJ7i0flw7OMZRoHIoKI_Nuo
+
+
+## List franchises — público
+GET {{baseUrl}}/franchises
+Accept: {{contentType}}
+
+### Responce
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":8,"pages":1,"current":1,"next":null,"prev":null},"results":[{"id":1,"name":"Frieren: Beyond Journey's End","synopsis":"After the hero's party defeats the Demon King, the elven mage Frieren continues living for centuries while her human companions age and die. Confronting the weight of time and loss, she embarks on a new journey to understand humanity and the people she failed to truly know.","created_at":"2026-02-23 18:45:24","updated_at":"2026-02-23 18:45:24"},{"id":2,"name":"The Apothecary Diaries","synopsis":"Maomao, a pharmacist's daughter sold into service at the imperial court, uses her sharp intellect and knowledge of medicine to solve poisonings and unravel palace conspiracies, catching the eye of the enigmatic eunuch Jinshi.","created_at":"2026-02-23 18:45:48","updated_at":"2026-02-23 18:45:48"},{"id":3,"name":"Little Witch Academia","synopsis":"Atsuko Kagari enrolls at Luna Nova Magical Academy inspired by her idol, the witch Shiny Chariot. Despite having no magical background, her enthusiasm and a mysterious relic push her to chase her dreams in a world where magic is slowly being forgotten.","created_at":"2026-02-23 18:46:08","updated_at":"2026-02-23 18:46:08"},{"id":4,"name":"Bocchi the Rock!","synopsis":"Hitori Gotoh is a painfully shy girl who dreams of making friends through music. After joining a struggling band called Kessoku Band, she must overcome her crippling social anxiety while discovering her surprising talent as a guitarist.","created_at":"2026-02-23 18:46:21","updated_at":"2026-02-23 18:46:21"},{"id":5,"name":"Omniscient Reader's Viewpoint","synopsis":"Kim Dokja is the sole reader of an obscure web novel \u2014 until its apocalyptic story becomes reality. Armed with complete knowledge of the plot, he navigates a world turned into a deadly survival game to change an ending only he has read.","created_at":"2026-02-23 18:46:32","updated_at":"2026-02-23 18:46:32"},{"id":6,"name":"Noblesse","synopsis":"Cadis Etrama Di Raizel, a powerful Noble who slept for 820 years, awakens in modern-day South Korea and enrolls in a high school to adapt to the era. Alongside his loyal servant Frankenstein, he protects his new friends from secret organizations hunting him down.","created_at":"2026-02-23 18:46:44","updated_at":"2026-02-23 18:46:44"},{"id":7,"name":"Oshi no Ko","synopsis":"A gynecologist reincarnated as the twin son of his favorite idol discovers the dark and ruthless side of the entertainment industry, where lies and deception are the tools needed to survive and shine.","created_at":"2026-02-23 18:48:48","updated_at":"2026-02-23 18:48:48"},{"id":9,"name":"Sword Art Online","synopsis":null,"created_at":"2026-02-23 23:44:25","updated_at":"2026-02-23 23:44:25"}]},"timestamp":"2026-03-15 02:14:50"}
+
+
+## List franchises — paginado
+GET {{baseUrl}}/franchises?page=2&limit=2
+Accept: {{contentType}}
+
+### Responce
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":8,"pages":4,"current":2,"next":3,"prev":1},"results":[{"id":3,"name":"Little Witch Academia","synopsis":"Atsuko Kagari enrolls at Luna Nova Magical Academy inspired by her idol, the witch Shiny Chariot. Despite having no magical background, her enthusiasm and a mysterious relic push her to chase her dreams in a world where magic is slowly being forgotten.","created_at":"2026-02-23 18:46:08","updated_at":"2026-02-23 18:46:08"},{"id":4,"name":"Bocchi the Rock!","synopsis":"Hitori Gotoh is a painfully shy girl who dreams of making friends through music. After joining a struggling band called Kessoku Band, she must overcome her crippling social anxiety while discovering her surprising talent as a guitarist.","created_at":"2026-02-23 18:46:21","updated_at":"2026-02-23 18:46:21"}]},"timestamp":"2026-03-15 02:19:10"}
+
+
+## Get specific franchise — público
+GET {{baseUrl}}/franchises/{{franchiseId}}
+Accept: {{contentType}}
+
+### Responce
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"name":"Frieren: Beyond Journey's End","synopsis":"After the hero's party defeats the Demon King, the elven mage Frieren continues living for centuries while her human companions age and die. Confronting the weight of time and loss, she embarks on a new journey to understand humanity and the people she failed to truly know.","created_at":"2026-02-23 18:45:24","updated_at":"2026-02-23 18:45:24"},"timestamp":"2026-03-15 02:19:30"}
+
+
+## Get — Fail (not found)
+GET {{baseUrl}}/franchises/999
+Accept: {{contentType}}
+
+### Responce
+// {"status":"error","code":404,"msg":"Franchise not found","data":null,"timestamp":"2026-03-15 02:19:42"}
+
+
+## Create franchise — admin
+POST {{baseUrl}}/franchises
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "name": "Chainsaw Man",
+    "synopsis": "Denji has a simple dream - to live a happy and peaceful life."
+}
+
+### Responce
+// {"status":"success","code":201,"msg":"Franchise created successfully","data":{"id":10},"timestamp":"2026-03-15 02:19:55"}
+### Response (get created franchise)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":10,"name":"Chainsaw Man","synopsis":"Denji has a simple dream - to live a happy and peaceful life.","created_at":"2026-03-15 02:19:55","updated_at":"2026-03-15 02:19:55"},"timestamp":"2026-03-15 02:20:21"}
+
+
+## Create — Fail (sin auth)
+POST {{baseUrl}}/franchises
+Content-Type: {{contentType}}
+
+{
+    "name": "Test"
+}
+
+### Responce
+// {"status":"error","code":401,"msg":"Authorization header missing","data":null,"timestamp":"2026-03-15 02:20:40"}
+
+
+## Update franchise — admin
+PATCH {{baseUrl}}/franchises/10
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "synopsis": "Synopsis updated"
+}
+
+### Responce
+// {"status":"success","code":200,"msg":"Franchise updated successfully","data":null,"timestamp":"2026-03-15 02:20:57"}
+### Response (get updated franchise)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":10,"name":"Chainsaw Man","synopsis":"Synopsis updated","created_at":"2026-03-15 02:19:55","updated_at":"2026-03-15 02:20:57"},"timestamp":"2026-03-15 02:21:08"}
+
+
+## Delete franchise — admin
+DELETE {{baseUrl}}/franchises/10
+Accept: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### Responce
+// {"status":"success","code":200,"msg":"Franchise deleted successfully","data":null,"timestamp":"2026-03-15 02:21:22"}
+### Responce (x2)
+// {"status":"error","code":404,"msg":"Franchise not found","data":null,"timestamp":"2026-03-15 02:21:40"}
+### Response (get deleted franchise)
+// {"status":"error","code":404,"msg":"Franchise not found","data":null,"timestamp":"2026-03-15 02:21:55"}

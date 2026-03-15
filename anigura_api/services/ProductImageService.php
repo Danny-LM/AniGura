@@ -2,9 +2,10 @@
 namespace Services;
 
 use Interfaces\Models\{ IProductImageModel, IProductModel };
+use Interfaces\Services\IProductImageService;
 use Exception;
 
-class ProductImageService {
+class ProductImageService implements IProductImageService {
     private $model, $productModel;
 
     public function __construct(IProductImageModel $model, IProductModel $productModel) {
@@ -63,7 +64,7 @@ class ProductImageService {
         return $this->model->findProductCover($productId);
     }
 
-    public function findByProduct(int $productId) {
+    public function findByProduct(int $productId): array {
         return $this->model->findByProduct($productId);
     }
 

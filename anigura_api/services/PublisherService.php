@@ -1,10 +1,12 @@
 <?php
 namespace Services;
 
+use Interfaces\Services\IPublisherService;
 use Interfaces\Models\IPublisherModel;
 use Exception;
+use PDOException;
 
-class PublisherService {
+class PublisherService implements IPublisherService {
     private $model;
 
     public function __construct(IPublisherModel $model) {
@@ -23,7 +25,14 @@ class PublisherService {
     }
 
     public function create(array $data) {
-        return $this->model->save($data);
+        try {
+            $id = $this->model->save($data);
+        } catch (PDOException $e) {
+            if ($e->getCode() === "23000") throw new Exception("Publisher already exists", 409);
+            throw $e;
+        }
+
+        return $this->model->find($id);
     }
 
     public function update(int $id, array $data) {
