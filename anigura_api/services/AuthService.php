@@ -43,7 +43,7 @@ class AuthService implements IAuthService {
                 "role"      => $user["role"],
                 "full_name" => $user["full_name"],
                 "email"     => $user["email"],
-                "rfc"       => $user["rfc"]
+                "rfc"       => $user["rfc"] ?? null,
             ]
         ];
     }

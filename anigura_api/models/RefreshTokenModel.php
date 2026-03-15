@@ -2,7 +2,7 @@
 namespace Models;
 
 use Core\BaseModel;
-use Core\Interfaces\Models\IRefreshTokenModel;
+use Interfaces\Models\IRefreshTokenModel;
 
 class RefreshTokenModel extends BaseModel implements IRefreshTokenModel {
     protected $table = "refresh_tokens";

@@ -16,7 +16,7 @@ $router->get("/", function () {
 });
 
 // --- Auth ---
-$router->post("/auth/register", fn() => $container->get(UserController::class)->store());
+$router->post("/auth/register", fn() => $container->get(AuthController::class)->register());
 $router->post("/auth/login",    fn() => $container->get(AuthController::class)->login());
 $router->post("/auth/refresh",  fn() => $container->get(AuthController::class)->refresh());
 $router->post("/auth/logout", function() use ($container) {

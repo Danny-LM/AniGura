@@ -1,10 +1,11 @@
 <?php
 namespace Services;
 
-use Interfaces\Models\{ IRefreshTokenModel, IUserModel};
+use Interfaces\Models\{ IRefreshTokenModel, IUserModel };
+use Interfaces\Services\IRefreshTokenService;
 use Exception;
 
-class RefreshTokenService {
+class RefreshTokenService implements IRefreshTokenService {
     private $model, $userModel;
 
     public function __construct(IRefreshTokenModel $model, IUserModel $userModel) {
@@ -16,7 +17,7 @@ class RefreshTokenService {
         return $this->model->all($page, $limit);
     }
 
-    public function find(int $id) {
+    public function find(int $id): array {
         $item = $this->model->find($id);
         if (!$item) throw new Exception("RefreshToken not found", 404);
 

@@ -77,5 +77,8 @@ $container->bind(MediaEntryController::class,   fn($c) => new MediaEntryControll
 $container->bind(ProductController::class,      fn($c) => new ProductController($c->get(IProductService::class)));
 $container->bind(CartItemController::class,     fn($c) => new CartItemController($c->get(ICartItemService::class)));
 $container->bind(ProductImageController::class, fn($c) => new ProductImageController($c->get(IProductImageService::class)));
-$container->bind(AuthController::class,         fn($c) => new AuthController($c->get(IAuthService::class)));
 $container->bind(OrderController::class, fn($c) => new OrderController($c->get(IOrderService::class)));
+$container->bind(AuthController::class,  fn($c) => new AuthController(
+    $c->get(IAuthService::class),
+    $c->get(IUserService::class),
+));
