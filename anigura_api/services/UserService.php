@@ -1,11 +1,13 @@
 <?php
 namespace Services;
 
+use Interfaces\Services\IUserService;
 use Interfaces\Models\IUserModel;
 use Enums\RoleEnum;
 use Exception;
+use PDOException;
 
-class UserService {
+class UserService implements IUserService {
     private $model;
 
     public function __construct(IUserModel $model) {
@@ -14,12 +16,16 @@ class UserService {
 
     public function create(array $data) {
         $this->validateAndConvertRole($data);
-
         $data["password"] = password_hash($data["password"], PASSWORD_BCRYPT);
 
-        $id = $this->model->save($data);
-        $user = $this->model->find($id);
+        try {
+            $id = $this->model->save($data);
+        } catch (PDOException $e) {
+            if ($e->getCode() === "23000") throw new Exception("Email already in use", 409);
+            throw $e;
+        }
 
+        $user = $this->model->find($id);
         return [
             "id"        => $user["id"],
             "role"      => $user["role"],
@@ -37,14 +43,15 @@ class UserService {
         return $user;
     }
 
-    public function findAll() {
-        $users = $this->model->all();
+    public function findAll(int $page = 1, int $limit = 10) {
+        $paginated = $this->model->all($page, $limit);
 
-        return array_map(function($user) {
+        $paginated["results"] = array_map(function($user) {
             unset($user["password"]);
-
             return $user;
-        }, $users);
+        }, $paginated["results"]);
+
+        return $paginated;
     }
 
     public function update(int $id, array $data) {

@@ -1,0 +1,148 @@
+# auth.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+## Register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "full_name": "Test User",
+    "email": "test1@anigura.mx",
+    "password": "Pass4321!"
+}
+
+### Responce
+// {"status":"success","code":201,"msg":"User created successfully","data":{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzczNTM2NTgxLCJleHAiOjE3NzM1Mzc0ODF9.jy8tgmyfWXBbydNCDPPPJnr-xjh2IBY1OyvFnFoodVY","refresh_token":"5f0104e0d216b1acc01b477f9f1f480a5ed46131be81548c6502a880e97ef0fde4deed20600c09b5394b17bfe78f77f59abcf23a49ac11ca2ed03edbc11d41fb","user":{"id":17,"role":"user","full_name":"Test User","email":"test1@anigura.mx","rfc":null}},"timestamp":"2026-03-15 01:03:01"}
+
+
+## Register - Fail (email already exists)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "full_name": "Test User",
+    "email": "test1@anigura.mx",
+    "password": "Pass4321!"
+}
+
+### Responce
+// {"status":"error","code":409,"msg":"Email already in use","data":null,"timestamp":"2026-03-15 01:04:01"}
+
+
+## Login - Success
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "dannylm@anigura.mx",
+    "password": "Pass4321!"
+}
+
+### Responce
+// {"status":"success","code":200,"msg":"Login successful","data":{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM2NzI2LCJleHAiOjE3NzM1Mzc2MjZ9.7RLaj0EDa9blofiiNLZeqPsOYwCzRtxu4WLVFH_ue9Y","refresh_token":"95e5e3e19d3b6ddbcda44093767b5860acc67a9be896b3d6f84159b105dbf6cf34c7758035086eb41637cdb87e615dd6568b700383902e6f784328ac6b988b73","user":{"id":1,"role":"admin","full_name":"Danny LM","email":"dannylm@anigura.mx","rfc":null}},"timestamp":"2026-03-15 01:05:26"}
+
+
+## Login - User
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "ashley@anigura.mx",
+    "password": "Pass4321!"
+}
+
+### Responce
+// {"status":"success","code":200,"msg":"Login successful","data":{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM1MzY3NTQsImV4cCI6MTc3MzUzNzY1NH0.iHzN1KiAvb-Mr5ITd9C3WKMf0k0ya-tYHQ62BzTK-Bo","refresh_token":"cde4a78e8dcd382cb88dd636019bf56a3af5278c600b013fe0502f0e11404d91ef9cdcb96cf413f09f1d6b9aa78100935ca0015e84b8b0396cd1cea6f1cda60e","user":{"id":2,"role":"user","full_name":"Ahley","email":"ashley@anigura.mx","rfc":null}},"timestamp":"2026-03-15 01:05:54"}
+
+
+## Login - Fail
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "danny@anigura.mx",
+    "password": "wrongpass!"
+}
+
+### Responce
+// {"status":"error","code":401,"msg":"Invalid credentials","data":null,"timestamp":"2026-03-15 01:06:12"}
+
+
+## Refresh Token
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refresh_token": "95e5e3e19d3b6ddbcda44093767b5860acc67a9be896b3d6f84159b105dbf6cf34c7758035086eb41637cdb87e615dd6568b700383902e6f784328ac6b988b73"
+}
+
+### Responce
+// {"status":"success","code":200,"msg":"Token refreshed","data":{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM2ODM2LCJleHAiOjE3NzM1Mzc3MzZ9.OKX-4QCzVdqOR1_f0RwIiGtoWe5RExy1YjaMiCUyKYk"},"timestamp":"2026-03-15 01:07:16"}
+
+
+## Logout
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM2ODM2LCJleHAiOjE3NzM1Mzc3MzZ9.OKX-4QCzVdqOR1_f0RwIiGtoWe5RExy1YjaMiCUyKYk
+
+{
+    "refresh_token": "95e5e3e19d3b6ddbcda44093767b5860acc67a9be896b3d6f84159b105dbf6cf34c7758035086eb41637cdb87e615dd6568b700383902e6f784328ac6b988b73"
+}
+
+### Response
+// {"status":"success","code":200,"msg":"Logout successful","data":null,"timestamp":"2026-03-15 01:08:10"}
+
+## Refresh - Fail (invalid token)
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refresh_token": "tokeninvalido123"
+}
+
+### Response
+// {"status":"error","code":401,"msg":"Invalid refresh token","data":null,"timestamp":"2026-03-15 01:10:46"}
+
+
+## Logout - Fail (token ya usado/inválido)
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM3MjE2LCJleHAiOjE3NzM1MzgxMTZ9.BsNnk0brLn4TfupnLIDffK0zS71fPPpCtcHudKqGWjk
+
+{
+    "refresh_token": "bf3838022f25a70de2328f33f8f2815ef3698d5f860e36660b3308e2a1ce81d7d4d95da019df4c64a5ac323cdcd8239d17c20e3d2d9055847fd1d44f56f78502"
+}
+
+### Response
+// {"status":"error","code":401,"msg":"Invalid refresh token","data":null,"timestamp":"2026-03-15 01:14:11"}
+
+
+## Acceso sin token — ruta protegida
+GET {{baseUrl}}/users
+
+### Response
+// {"status":"error","code":401,"msg":"Authorization header missing","data":null,"timestamp":"2026-03-15 01:14:32"}
+
+## Acceso con token de user a ruta admin
+GET {{baseUrl}}/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM1MzcyOTYsImV4cCI6MTc3MzUzODE5Nn0.o5S2craD-F1up90WCYq_MOqvVNByyjwt42oAA29xHZU
+
+### Response
+// {"status":"error","code":403,"msg":"Access denied. Required role: admin","data":null,"timestamp":"2026-03-15 01:15:39"}
+
+
+## Acceso con token expirado
+GET {{baseUrl}}/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM2ODM2LCJleHAiOjE3NzM1Mzc3MzZ9.OKX-4QCzVdqOR1_f0RwIiGtoWe5RExy1YjaMiCUyKYk
+
+### Response
+// {"status":"error","code":401,"msg":"Token expired","data":null,"timestamp":"2026-03-15 01:24:42"}
+
+
+## Acceso con token valido :D
+GET {{baseUrl}}/users
+Authorization: Bearer
+
+### Response
+// 

@@ -2,8 +2,8 @@
 namespace Services;
 
 use Interfaces\Services\{ IRefreshTokenService, IAuthService };
+use Core\{ JwtHelper, Config, Logger };
 use Interfaces\Models\IUserModel;
-use Core\{ JwtHelper, Config };
 use Exception;
 
 class AuthService implements IAuthService {
@@ -17,6 +17,7 @@ class AuthService implements IAuthService {
     public function login(array $data): array {
         $user = $this->userModel->getAuthData($data["email"]);
         if (!$user || !password_verify($data["password"], $user["password"])) {
+            Logger::warning("Failed login attempt", ["email" => $data["email"]]);
             throw new Exception("Invalid credentials", 401);
         }
 
@@ -42,20 +43,27 @@ class AuthService implements IAuthService {
                 "role"      => $user["role"],
                 "full_name" => $user["full_name"],
                 "email"     => $user["email"],
-                "rfc"       => $user["rfc"]
+                "rfc"       => $user["rfc"] ?? null,
             ]
         ];
     }
 
     public function refresh(string $refreshToken): array {
-        $tokenData = $this->refreshService->findByToken($refreshToken);
+        try {
+            $tokenData = $this->refreshService->findByToken($refreshToken);
 
-        $accessToken = JwtHelper::generateAccessToken([
-            "id" =>   $tokenData["id_user"],
-            "role" => $tokenData["role"],
-        ]);
+            $accessToken = JwtHelper::generateAccessToken([
+                "id" =>   $tokenData["id_user"],
+                "role" => $tokenData["role"],
+            ]);
+    
+            return [ "access_token" => $accessToken ];
 
-        return [ "access_token" => $accessToken ];
+        } catch (Exception $e) {
+            Logger::warning("Invalid refresh token attempt");
+            throw $e;
+        }
+
     }
 
     public function logout(string $refreshToken): void {

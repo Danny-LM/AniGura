@@ -2,7 +2,7 @@
 namespace Models;
 
 use Core\BaseModel;
-use Core\Interfaces\Models\IUserModel;
+use Interfaces\Models\IUserModel;
 
 class UserModel extends BaseModel implements IUserModel {
     protected $table = "users";
@@ -19,7 +19,7 @@ class UserModel extends BaseModel implements IUserModel {
     }
 
     public function getAuthData(string $email): array|false {
-        $sql = "SELECT id, role, full_name, email, password
+        $sql = "SELECT id, role, full_name, email, password, rfc
                 FROM {$this->table} WHERE email = :email";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(":email", $email);

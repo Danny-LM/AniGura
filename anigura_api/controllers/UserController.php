@@ -13,8 +13,8 @@ class UserController extends BaseController {
     }
 
     public function index(): void {
-        $users = $this->service->findAll();
-        $this->ok($users, "Users retrieved successfully");
+        $p = $this->getPagination();
+        $this->paginated($this->service->findAll($p["page"], $p["limit"]));
     }
 
     public function show($id): void {

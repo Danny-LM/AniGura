@@ -14,8 +14,8 @@ class MediaEntryService implements IMediaEntryService {
         $this->franchiseModel = $franchiseModel;
     }
 
-    public function findAll() {
-        return $this->model->all();
+    public function findAll(int $page = 1, int $limit = 20) {
+        return $this->model->all($page, $limit);
     }
 
     public function find(int $id) {
@@ -27,7 +27,7 @@ class MediaEntryService implements IMediaEntryService {
 
     public function create(array $data) {
         if (!$this->franchiseModel->exists($data["id_franchise"])) throw new Exception("Franchise not found", 404);
-        $this->validateAndConvertRole($data);
+        $this->validateAndConvertMediaType($data);
 
         return $this->model->save($data);
     }
@@ -48,7 +48,7 @@ class MediaEntryService implements IMediaEntryService {
         return $this->model->delete($id);
     }
 
-    private function validateAndConvertRole(array &$data): void {
+    private function validateAndConvertMediaType(array &$data): void {
         if (!empty($data["media_type"])) {
             $enumValue = MediaTypeEnum::tryFrom($data["media_type"]);
             if (!$enumValue) throw new Exception("Invalid media_type. Allowed: manga, light_novel, anime, game", 400);

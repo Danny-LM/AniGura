@@ -1,0 +1,93 @@
+# publishers.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@publisherId = 1
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM5NzkwLCJleHAiOjE3NzM1NDY5OTB9.dmbtYLf06oPVGR5w48UcDaGSoCkV--sKmM1Obop93Uc
+
+
+## List publishers — público
+GET {{baseUrl}}/publishers
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":3,"pages":1,"current":1,"next":null,"prev":null},"results":[{"id":1,"name":"Panini Manga","created_at":"2026-02-23 19:09:39","updated_at":"2026-02-23 19:09:39"},{"id":3,"name":"Yen Press","created_at":"2026-02-23 19:10:18","updated_at":"2026-02-23 19:10:18"},{"id":4,"name":"Viz Media","created_at":"2026-02-23 19:10:31","updated_at":"2026-02-23 19:10:31"}]},"timestamp":"2026-03-15 02:27:58"}
+
+
+## List publishers — paginado
+GET {{baseUrl}}/publishers?page=2&limit=2
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":3,"pages":2,"current":2,"next":null,"prev":1},"results":[{"id":4,"name":"Viz Media","created_at":"2026-02-23 19:10:31","updated_at":"2026-02-23 19:10:31"}]},"timestamp":"2026-03-15 02:28:06"}
+
+
+## Get specific publisher — público
+GET {{baseUrl}}/publishers/{{publisherId}}
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"name":"Panini Manga","created_at":"2026-02-23 19:09:39","updated_at":"2026-02-23 19:09:39"},"timestamp":"2026-03-15 02:28:20"}
+
+
+## Get — Fail (not found)
+GET {{baseUrl}}/publishers/999
+Accept: {{contentType}}
+
+### Response
+// {"status":"error","code":404,"msg":"Publisher not found","data":null,"timestamp":"2026-03-15 02:28:28"}
+
+
+## Create publisher — admin
+POST {{baseUrl}}/publishers
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "name": "Kodansha"
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Publisher created successfully","data":{"id":5},"timestamp":"2026-03-15 02:29:00"}
+### Response (get created publisher)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":5,"name":"Kodansha","created_at":"2026-03-15 02:29:00","updated_at":"2026-03-15 02:29:00"},"timestamp":"2026-03-15 02:29:17"}
+
+
+## Create — Fail (nombre duplicado)
+POST {{baseUrl}}/publishers
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "name": "Kodansha"
+}
+
+### Response
+// {"status":"error","code":409,"msg":"Publisher already exists","data":null,"timestamp":"2026-03-15 02:35:36"}
+
+
+## Update publisher — admin
+PATCH {{baseUrl}}/publishers/{{publisherId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "name": "Panini Comics"
+}
+
+### Response
+// {"status":"success","code":200,"msg":"Publisher updated successfully","data":null,"timestamp":"2026-03-15 02:36:23"}
+### Response (get updated publisher)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"name":"Panini Comics","created_at":"2026-02-23 19:09:39","updated_at":"2026-03-15 02:36:23"},"timestamp":"2026-03-15 02:36:39"}
+
+
+## Delete publisher — admin
+DELETE {{baseUrl}}/publishers/5
+Accept: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Publisher deleted successfully","data":null,"timestamp":"2026-03-15 02:37:04"}
+### Response (x2)
+// {"status":"error","code":404,"msg":"Publisher not found","data":null,"timestamp":"2026-03-15 02:37:15"}
+### Response (get deleted publisher)
+// {"status":"error","code":404,"msg":"Publisher not found","data":null,"timestamp":"2026-03-15 02:37:29"}

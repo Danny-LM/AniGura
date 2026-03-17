@@ -13,7 +13,8 @@ class PublisherController extends BaseController {
     }
 
     public function index(): void {
-        $this->ok($this->service->findAll());
+        $p = $this->getPagination();
+        $this->paginated($this->service->findAll($p["page"], $p["limit"]));
     }
 
     public function show($id): void {
@@ -23,28 +24,26 @@ class PublisherController extends BaseController {
 
     public function store(): void {
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [ "name" => "!null|max:255" ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
         $id = $this->service->create($validated);
-        $this->json(201, ["id" => $id], "Publishers created successfully");
+        $this->json(201, ["id" => $id], "Publisher created successfully");
     }
 
     public function update(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $data = $this->getBody();
-        // TODO: Apply validation rules using $this->validate()
         $validated = $this->validate($data, [ "name" => "max:255" ]);
         if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
 
         $this->service->update($id, $validated);
-        $this->ok(null, "Publishers updated successfully");
+        $this->ok(null, "Publisher updated successfully");
     }
 
     public function destroy(int $id): void {
         $this->validate(["id" => $id], ["id" => "num"]);
         $this->service->delete($id);
-        $this->ok(null, "Publishers deleted successfully");
+        $this->ok(null, "Publisher deleted successfully");
     }
 }

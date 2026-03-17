@@ -3,7 +3,7 @@ use Core\{ Response, Config, AuthMiddleware };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController,
     MediaEntryController, ProductController, CartItemController, ProductImageController,
-    AuthController
+    AuthController, OrderController,
 };
 
 // --- Info ---
@@ -16,7 +16,7 @@ $router->get("/", function () {
 });
 
 // --- Auth ---
-$router->post("/auth/register", fn() => $container->get(UserController::class)->store());
+$router->post("/auth/register", fn() => $container->get(AuthController::class)->register());
 $router->post("/auth/login",    fn() => $container->get(AuthController::class)->login());
 $router->post("/auth/refresh",  fn() => $container->get(AuthController::class)->refresh());
 $router->post("/auth/logout", function() use ($container) {
@@ -83,9 +83,9 @@ $router->get("/addresses", function() use ($container) {
     AuthMiddleware::requireRole("admin");
     $container->get(AddressController::class)->index();
 });
-$router->get("/addresses/user/:userId", function($userId) use ($container) {
+$router->get("/addresses/me", function() use ($container) {
     AuthMiddleware::handle();
-    $container->get(AddressController::class)->userDefault((int)$userId);
+    $container->get(AddressController::class)->userDefault();
 });
 $router->get("/addresses/:id", function($id) use ($container) {
     AuthMiddleware::handle();
@@ -137,25 +137,25 @@ $router->delete("/products/:id", function($id) use ($container) {
 });
 
 // --- Cart ---
-$router->get("/cart/:id_user/validate", function($id) use ($container) {
+$router->get("/cart/validate", function() use ($container) {
     AuthMiddleware::handle();
-    $container->get(CartItemController::class)->validateUserCart((int)$id);
+    $container->get(CartItemController::class)->validateUserCart();
 });
-$router->get("/cart/:id_user", function($id) use ($container) {
+$router->get("/cart", function() use ($container) {
     AuthMiddleware::handle();
-    $container->get(CartItemController::class)->show((int)$id);
+    $container->get(CartItemController::class)->show();
 });
-$router->post("/cart/:id_user", function($id) use ($container) {
+$router->post("/cart", function() use ($container) {
     AuthMiddleware::handle();
-    $container->get(CartItemController::class)->store((int)$id);
+    $container->get(CartItemController::class)->store();
 });
-$router->patch("/cart/:id_user/:id_item", function($id_user, $id_item) use ($container) {
+$router->patch("/cart/:id_item", function($id_item) use ($container) {
     AuthMiddleware::handle();
-    $container->get(CartItemController::class)->update((int)$id_user, (int)$id_item);
+    $container->get(CartItemController::class)->update((int)$id_item);
 });
-$router->delete("/cart/:id_user/:id_item", function($id_user, $id_item) use ($container) {
+$router->delete("/cart/:id_item", function($id_item) use ($container) {
     AuthMiddleware::handle();
-    $container->get(CartItemController::class)->destroy((int)$id_user, (int)$id_item);
+    $container->get(CartItemController::class)->destroy((int)$id_item);
 });
 
 // --- Images ---
@@ -174,4 +174,34 @@ $router->patch("/images/:id", function($id) use ($container) {
 $router->delete("/images/:id", function($id) use ($container) {
     AuthMiddleware::requireRole("admin");
     $container->get(ProductImageController::class)->destroy((int)$id);
+});
+
+// --- Orders ---
+$router->get("/orders", function() use ($container) {
+    AuthMiddleware::requireRole("admin");
+    $container->get(OrderController::class)->index();
+});
+$router->post("/orders", function() use ($container) {
+    AuthMiddleware::handle();
+    $container->get(OrderController::class)->store();
+});
+$router->get("/orders/me", function() use ($container) {
+    AuthMiddleware::handle();
+    $container->get(OrderController::class)->userOrders();
+});
+$router->get("/orders/me/:id_order", function($id_order) use ($container) {
+    AuthMiddleware::handle();
+    $container->get(OrderController::class)->orderDetails((int)$id_order);
+});
+$router->patch("/orders/me/:id_order/cancel", function($id_order) use ($container) {
+    AuthMiddleware::handle();
+    $container->get(OrderController::class)->cancel((int)$id_order);
+});
+$router->patch("/orders/:id_order", function($id_order) use ($container) {
+    AuthMiddleware::requireRole("admin");
+    $container->get(OrderController::class)->update((int)$id_order);
+});
+$router->delete("/orders/:id_order", function($id_order) use ($container) {
+    AuthMiddleware::requireRole("admin");
+    $container->get(OrderController::class)->destroy((int)$id_order);
 });

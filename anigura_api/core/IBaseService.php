@@ -3,7 +3,7 @@ namespace Core;
 
 interface IBaseService {
     // [BEGIN:index]
-    public function findAll();
+    public function findAll(int $page = 1, int $limit = 20);
     // [END:index]
 
     // [BEGIN: show]

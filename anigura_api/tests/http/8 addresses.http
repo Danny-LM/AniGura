@@ -1,0 +1,116 @@
+# addresses.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM5NzkwLCJleHAiOjE3NzM1NDY5OTB9.dmbtYLf06oPVGR5w48UcDaGSoCkV--sKmM1Obop93Uc
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM1Mzk4MDQsImV4cCI6MTc3MzU0NzAwNH0.pZX-HJCSlMTDRbwFw6P6GJ7i0flw7OMZRoHIoKI_Nuo
+
+
+## List addresses — solo admin
+GET {{baseUrl}}/addresses
+Authorization: Bearer {{adminToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":3,"pages":1,"current":1,"next":null,"prev":null},"results":[{"id":1,"id_user":1,"alias":"Home","street":"123 Sakura Street","city":"Tokyo","state":"Tokyo","zip_code":"100-0001","is_default":0,"created_at":"2026-02-23 20:57:04","updated_at":"2026-02-23 20:57:04"},{"id":2,"id_user":1,"alias":"Office","street":"456 Maple Avenue","city":"Osaka","state":"Osaka","zip_code":"530-0001","is_default":0,"created_at":"2026-02-23 21:15:18","updated_at":"2026-02-23 21:15:18"},{"id":5,"id_user":2,"alias":"Dorm","street":"10 Aoyama Boulevard","city":"Nagoya","state":"Aichi","zip_code":"460-0001","is_default":0,"created_at":"2026-02-23 21:44:34","updated_at":"2026-02-23 21:44:34"}]},"timestamp":"2026-03-15 03:29:18"}
+
+
+## Get address by ID
+GET {{baseUrl}}/addresses/2
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"id":2,"id_user":1,"alias":"Office","street":"456 Maple Avenue","city":"Osaka","state":"Osaka","zip_code":"530-0001","is_default":0,"created_at":"2026-02-23 21:15:18","updated_at":"2026-02-23 21:15:18"},"timestamp":"2026-03-15 03:32:10"}
+
+
+## Get default address by user
+GET {{baseUrl}}/addresses/user/1
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"id_user":1,"alias":"Home","street":"123 Sakura Street","city":"Tokyo","state":"Tokyo","zip_code":"100-0001","is_default":1,"created_at":"2026-02-23 20:57:04","updated_at":"2026-03-15 03:31:38"},"timestamp":"2026-03-15 03:31:42"}
+
+
+## Create address — is_default true
+POST {{baseUrl}}/addresses
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_user": 2,
+    "alias": "Home",
+    "street": "456 Test Street",
+    "city": "Guadalajara",
+    "state": "Jalisco",
+    "zip_code": "44100",
+    "is_default": true
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Address created successfully","data":{"id":6},"timestamp":"2026-03-15 03:32:49"}
+### Response (get created address)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":6,"id_user":2,"alias":"Home","street":"456 Test Street","city":"Guadalajara","state":"Jalisco","zip_code":"44100","is_default":1,"created_at":"2026-03-15 03:32:49","updated_at":"2026-03-15 03:32:49"},"timestamp":"2026-03-15 03:34:10"}
+### Response (default address)
+// {"status":"success","code":200,"msg":"Request success","data":[{"id":6,"id_user":2,"alias":"Home","street":"456 Test Street","city":"Guadalajara","state":"Jalisco","zip_code":"44100","is_default":1,"created_at":"2026-03-15 03:32:49","updated_at":"2026-03-15 03:32:49"}],"timestamp":"2026-03-15 03:34:36"}
+
+
+## Create second address — should reset previous default
+POST {{baseUrl}}/addresses
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_user": 2,
+    "alias": "Work",
+    "street": "789 Office Ave",
+    "city": "Guadalajara",
+    "state": "Jalisco",
+    "zip_code": "44150",
+    "is_default": true
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Address created successfully","data":{"id":7},"timestamp":"2026-03-15 03:35:53"}
+
+## Get default — debe ser solo Work ahora
+GET {{baseUrl}}/addresses/user/2
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"id":7,"id_user":2,"alias":"Work","street":"789 Office Ave","city":"Guadalajara","state":"Jalisco","zip_code":"44150","is_default":1,"created_at":"2026-03-15 03:35:53","updated_at":"2026-03-15 03:35:53"}],"timestamp":"2026-03-15 03:36:09"}
+
+
+## Update address
+PATCH {{baseUrl}}/addresses/5
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "alias": "Main Home"
+}
+
+### Response
+// {"status":"success","code":200,"msg":"Address updated successfully","data":null,"timestamp":"2026-03-15 03:36:35"}
+
+
+## Delete address
+DELETE {{baseUrl}}/addresses/5
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Address deleted successfully","data":null,"timestamp":"2026-03-15 03:36:51"}
+
+
+## Fail — user not found
+POST {{baseUrl}}/addresses
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "id_user": 999,
+    "street": "Test",
+    "city": "Test",
+    "state": "Test",
+    "zip_code": "00000"
+}
+
+### Response
+// {"status":"error","code":404,"msg":"User not found","data":null,"timestamp":"2026-03-15 03:36:59"}

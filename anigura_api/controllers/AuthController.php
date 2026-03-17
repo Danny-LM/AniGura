@@ -1,14 +1,16 @@
 <?php
 namespace Controllers;
 
-use Interfaces\Services\IAuthService;
+use Interfaces\Services\{ IAuthService, IUserService };
 use Core\BaseController;
+use Exception;
 
 class AuthController extends BaseController {
-    private $service;
+    private $service, $userService;
 
-    public function __construct(IAuthService $service) {
+    public function __construct(IAuthService $service, IUserService $userService) {
         $this->service = $service;
+        $this->userService = $userService;
     }
 
     public function login(): void {
@@ -20,6 +22,25 @@ class AuthController extends BaseController {
 
         $result = $this->service->login($validated);
         $this->json(200, $result, "Login successful");
+    }
+
+    public function register(): void {
+        $data = $this->getBody();
+        $validated = $this->validate($data, [
+            "full_name" => "!null|max:255",
+            "email"     => "!null|email|max:150",
+            "password"  => "!null|min:8|max:255",
+            "rfc"       => "max:13",
+        ]);
+        if (empty($validated)) throw new Exception("No valid data provided", 400);
+
+        $this->userService->create($validated);
+        $result = $this->service->login([
+            "email"    => $validated["email"],
+            "password" => $validated["password"]
+        ]);
+
+        $this->json(201, $result, "User created successfully");
     }
 
     public function refresh(): void {

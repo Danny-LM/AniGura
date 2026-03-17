@@ -2,7 +2,7 @@
 namespace Models;
 
 use Core\BaseModel;
-use Core\Interfaces\Models\ICartItemModel;
+use Interfaces\Models\ICartItemModel;
 
 class CartItemModel extends BaseModel implements ICartItemModel {
     protected $table = "cart_items";

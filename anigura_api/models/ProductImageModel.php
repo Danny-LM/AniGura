@@ -2,7 +2,7 @@
 namespace Models;
 
 use Core\BaseModel;
-use Core\Interfaces\Models\IProductImageModel;
+use Interfaces\Models\IProductImageModel;
 
 class ProductImageModel extends BaseModel implements IProductImageModel {
     protected $table = "product_images";

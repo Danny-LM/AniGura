@@ -2,7 +2,7 @@
 namespace Models;
 
 use Core\BaseModel;
-use Core\Interfaces\Models\IAddressModel;
+use Interfaces\Models\IAddressModel;
 
 class AddressModel extends BaseModel implements IAddressModel {
     protected $table = "addresses";

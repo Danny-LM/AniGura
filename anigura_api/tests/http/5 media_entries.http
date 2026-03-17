@@ -1,0 +1,128 @@
+# media_entries.http
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@mediaEntryId = 1
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM5NzkwLCJleHAiOjE3NzM1NDY5OTB9.dmbtYLf06oPVGR5w48UcDaGSoCkV--sKmM1Obop93Uc
+
+
+## List media_entries — público
+GET {{baseUrl}}/media_entries
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":12,"pages":1,"current":1,"next":null,"prev":null},"results":[{"id":1,"id_franchise":1,"media_type":"manga","title":"Frieren: Beyond Journey's End","author":"Kanehito Yamada","volumes":13,"episodes":null},{"id":2,"id_franchise":1,"media_type":"anime","title":"Frieren: Beyond Journey's End","author":null,"volumes":null,"episodes":28},{"id":3,"id_franchise":1,"media_type":"manga","title":"The Apothecary Diaries","author":"Minoji Kurata","volumes":11,"episodes":null},{"id":4,"id_franchise":2,"media_type":"manga","title":"The Apothecary Diaries","author":"Minoji Kurata","volumes":11,"episodes":null},{"id":5,"id_franchise":2,"media_type":"light_novel","title":"The Apothecary Diaries","author":"Natsu Minase","volumes":13,"episodes":null},{"id":6,"id_franchise":3,"media_type":"anime","title":"Little Witch Academia","author":null,"volumes":null,"episodes":25},{"id":7,"id_franchise":4,"media_type":"manga","title":"Bocchi the Rock!","author":"Aki Hamaji","volumes":7,"episodes":null},{"id":8,"id_franchise":4,"media_type":"anime","title":"Bocchi the Rock!","author":null,"volumes":null,"episodes":12},{"id":9,"id_franchise":5,"media_type":"light_novel","title":"Omniscient Reader's Viewpoint","author":"sing N song","volumes":null,"episodes":null},{"id":10,"id_franchise":6,"media_type":"manga","title":"Noblesse","author":"Son Jeho","volumes":36,"episodes":null},{"id":11,"id_franchise":7,"media_type":"manga","title":"Oshi no Ko","author":"Aka Akasaka","volumes":15,"episodes":null},{"id":12,"id_franchise":7,"media_type":"anime","title":"Oshi no Ko","author":null,"volumes":null,"episodes":23}]},"timestamp":"2026-03-15 02:40:43"}
+
+
+## List media_entries — paginado
+GET {{baseUrl}}/media_entries?page=1&limit=3
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":12,"pages":4,"current":1,"next":2,"prev":null},"results":[{"id":1,"id_franchise":1,"media_type":"manga","title":"Frieren: Beyond Journey's End","author":"Kanehito Yamada","volumes":13,"episodes":null},{"id":2,"id_franchise":1,"media_type":"anime","title":"Frieren: Beyond Journey's End","author":null,"volumes":null,"episodes":28},{"id":3,"id_franchise":1,"media_type":"manga","title":"The Apothecary Diaries","author":"Minoji Kurata","volumes":11,"episodes":null}]},"timestamp":"2026-03-15 02:41:00"}
+
+
+## Get specific media_entry
+GET {{baseUrl}}/media_entries/{{mediaEntryId}}
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"id_franchise":1,"media_type":"manga","title":"Frieren: Beyond Journey's End","author":"Kanehito Yamada","volumes":13,"episodes":null},"timestamp":"2026-03-15 02:41:14"}
+
+
+## Get — Fail (not found)
+GET {{baseUrl}}/media_entries/999
+Accept: {{contentType}}
+
+### Response
+// {"status":"error","code":404,"msg":"MediaEntry not found","data":null,"timestamp":"2026-03-15 02:41:32"}
+
+
+## Create media_entry — admin
+POST {{baseUrl}}/media_entries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "id_franchise": 4,
+    "media_type": "manga",
+    "title": "Bocchi the Rock! Special Edition",
+    "author": "Aki Hamaji",
+    "volumes": 8
+}
+
+### Response
+// {"status":"success","code":201,"msg":"MediaEntry created successfully","data":{"id":14},"timestamp":"2026-03-15 02:41:43"}
+### Response (get created media_entry)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":14,"id_franchise":4,"media_type":"manga","title":"Bocchi the Rock! Special Edition","author":"Aki Hamaji","volumes":8,"episodes":null},"timestamp":"2026-03-15 02:42:05"}
+
+
+## Create — Fail (invalid media_type)
+POST {{baseUrl}}/media_entries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "id_franchise": 4,
+    "media_type": "comic",
+    "title": "Test"
+}
+
+### Response
+// {"status":"error","code":400,"msg":"Invalid media_type. Allowed: manga, light_novel, anime, game","data":null,"timestamp":"2026-03-15 02:42:26"}
+
+
+## Create — Fail (franchise not found)
+POST {{baseUrl}}/media_entries
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "id_franchise": 999,
+    "media_type": "manga",
+    "title": "Test"
+}
+
+### Response
+// {"status":"error","code":404,"msg":"Franchise not found","data":null,"timestamp":"2026-03-15 02:42:39"}
+
+
+## Update media_entry — admin
+PATCH {{baseUrl}}/media_entries/{{mediaEntryId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "volumes": 14,
+    "author": "Kanehito Yamada"
+}
+
+### Response
+// {"status":"success","code":200,"msg":"MediaEntry updated successfully","data":null,"timestamp":"2026-03-15 02:42:49"}
+### Response (get updated media_entry)
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"id_franchise":1,"media_type":"manga","title":"Frieren: Beyond Journey's End","author":"Kanehito Yamada","volumes":14,"episodes":null},"timestamp":"2026-03-15 02:43:06"}
+
+
+## Update — Fail (not found)
+PATCH {{baseUrl}}/media_entries/999
+Content-Type: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+{
+    "volumes": 14
+}
+
+### Response
+// {"status":"error","code":404,"msg":"MediaEntry not found","data":null,"timestamp":"2026-03-15 02:43:22"}
+
+
+## Delete media_entry — admin
+DELETE {{baseUrl}}/media_entries/14
+Accept: {{contentType}}
+Authorization: Bearer {{adminToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"MediaEntry deleted successfully","data":null,"timestamp":"2026-03-15 02:44:15"}
+### Response (x2)
+// {"status":"error","code":404,"msg":"MediaEntry not found","data":null,"timestamp":"2026-03-15 02:44:23"}
+### Response (get deleted media_entry)
+// {"status":"error","code":404,"msg":"MediaEntry not found","data":null,"timestamp":"2026-03-15 02:44:42"}

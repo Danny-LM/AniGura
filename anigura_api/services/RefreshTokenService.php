@@ -1,10 +1,11 @@
 <?php
 namespace Services;
 
-use Interfaces\Models\{ IRefreshTokenModel, IUserModel};
+use Interfaces\Models\{ IRefreshTokenModel, IUserModel };
+use Interfaces\Services\IRefreshTokenService;
 use Exception;
 
-class RefreshTokenService {
+class RefreshTokenService implements IRefreshTokenService {
     private $model, $userModel;
 
     public function __construct(IRefreshTokenModel $model, IUserModel $userModel) {
@@ -12,11 +13,11 @@ class RefreshTokenService {
         $this->userModel = $userModel;
     }
 
-    public function findAll() {
-        return $this->model->all();
+    public function findAll(int $page = 1, int $limit = 20) {
+        return $this->model->all($page, $limit);
     }
 
-    public function find(int $id) {
+    public function find(int $id): array {
         $item = $this->model->find($id);
         if (!$item) throw new Exception("RefreshToken not found", 404);
 
@@ -49,7 +50,7 @@ class RefreshTokenService {
         $data = $this->model->findByToken($token);
         if (!$data) throw new Exception("Invalid refresh token", 401);
         if (strtotime($data["expires_at"]) < time()) {
-            $this->model->delete($token);
+            $this->model->deleteByToken($token);
             throw new Exception("Refresh token expired", 401);
         }
 

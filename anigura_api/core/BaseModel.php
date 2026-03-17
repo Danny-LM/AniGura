@@ -2,8 +2,9 @@
 namespace Core;
 
 use Exception;
+use Core\IBaseModel;
 
-abstract class BaseModel {
+abstract class BaseModel implements IBaseModel {
     protected $db;
     protected $table;
     protected $primaryKey = "id";
@@ -42,12 +43,30 @@ abstract class BaseModel {
         return $stmt->fetch();
     }
 
-    public function all(): array {
-        $sql = "SELECT * FROM {$this->table}";
+    public function all(int $page = 1, int $limit = 20): array {
+        $offset = ($page - 1) * $limit;
+
+        $totalSql = "SELECT COUNT(*) FROM {$this->table}";
+        $totalStmt = $this->db->prepare($totalSql);
+        $totalStmt->execute();
+        $total = (int) $totalStmt->fetchColumn();
+
+        $sql = "SELECT * FROM {$this->table} LIMIT :limit OFFSET :offset";
         $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(":limit", $limit, \PDO::PARAM_INT);
+        $stmt->bindValue(":offset", $offset, \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll();
+        return [
+            "info" => [
+                "total"   => $total,
+                "pages"   => (int) ceil($total / $limit),
+                "current" => $page,
+                "next"    => ($page * $limit < $total) ? $page + 1 : null,
+                "prev"    => $page > 1 ? $page - 1 : null,
+            ],
+            "results" => $stmt->fetchAll()
+        ];
     }
 
     public function update(int $id, array $data): bool {
@@ -126,7 +145,7 @@ abstract class BaseModel {
         return $value;
     }
 
-    public function findInIds(array $ids) {
+    public function findInIds(array $ids): array {
         if (empty($ids)) return [];
 
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
