@@ -68,8 +68,10 @@ class Router {
                     "line"    => $e->getLine(),
                 ]);
             }
-            
-            Response::json($code, null, $e->getMessage());
+
+            $debug = Config::get("APP_ENV") !== "production";
+            $errorMessage = $debug ? $e->getMessage() : "Internal Server Error";
+            Response::json($code, null, $errorMessage);
         }
     }
 }

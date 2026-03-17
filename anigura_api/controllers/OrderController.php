@@ -2,9 +2,8 @@
 namespace Controllers;
 
 use Exception;
-use Core\BaseController;
+use Core\{ BaseController, AuthMiddleware, IdempotencyMiddleware };
 use Interfaces\Services\IOrderService;
-use Core\AuthMiddleware;
 
 class OrderController extends BaseController {
     public function __construct(private IOrderService $service) {}
@@ -20,7 +19,8 @@ class OrderController extends BaseController {
     }
 
     public function store(): void {
-        $id_user = AuthMiddleware::$currentUserId; 
+        $id_user = AuthMiddleware::$currentUserId;
+        $idem = IdempotencyMiddleware::handle("POST /orders", "Order already created");
 
         $data = $this->getBody();
         $validated = $this->validate($data, [
@@ -28,8 +28,17 @@ class OrderController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $id = $this->service->createFromCart($id_user, $validated);
-        $this->json(201, ["id" => $id], "Order created successfully");
+        IdempotencyMiddleware::begin($idem, $id_user);
+
+        try {
+            $id = $this->service->createFromCart($id_user, $validated);
+            IdempotencyMiddleware::complete($idem, 201, ["id" => $id]);
+            $this->json(201, ["id" => $id], "Order created successfully");
+
+        } catch (Exception $e) {
+            IdempotencyMiddleware::fail($idem);
+            throw $e;
+        }
     }
 
     public function update(int $id): void {
@@ -69,13 +78,24 @@ class OrderController extends BaseController {
     }
 
     public function cancel(int $orderId): void {
-        $userId = AuthMiddleware::$currentUserId; 
+        $userId = AuthMiddleware::$currentUserId;
+        $idem = IdempotencyMiddleware::handle("PATCH /orders/cancel", "Order already cancelled");
 
         $this->validate(
             ["id_order" => $orderId],
             ["id_order" => "num"]
         );
-        $this->service->cancel($orderId, $userId);
-        $this->ok(null, "Order cancelled successfully");
+
+        IdempotencyMiddleware::begin($idem, $userId);
+
+        try {
+            $this->service->cancel($orderId, $userId);
+            IdempotencyMiddleware::complete($idem, 200, null);
+            $this->ok(null, "Order cancelled successfully");
+
+        } catch (Exception $e) {
+            IdempotencyMiddleware::fail($idem);
+            throw $e;
+        }
     }
 }

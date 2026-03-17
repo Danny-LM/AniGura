@@ -1,8 +1,8 @@
 # addresses.http
 @baseUrl = http://localhost:8000
 @contentType = application/json
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNTM5NzkwLCJleHAiOjE3NzM1NDY5OTB9.dmbtYLf06oPVGR5w48UcDaGSoCkV--sKmM1Obop93Uc
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM1Mzk4MDQsImV4cCI6MTc3MzU0NzAwNH0.pZX-HJCSlMTDRbwFw6P6GJ7i0flw7OMZRoHIoKI_Nuo
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzIwMTMzLCJleHAiOjE3NzM3MjczMzN9.S1y9qv03iOl4v8-xbFnh0zebWAWE0OiPS-AeDidiBUc
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTk5NTgsImV4cCI6MTc3MzcyNzE1OH0.2B2ab6luXmsKcn1Ox45Qg2p_3HdzIp4h_Hl5pG70swU
 
 
 ## List addresses — solo admin
@@ -22,7 +22,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Get default address by user
-GET {{baseUrl}}/addresses/user/1
+GET {{baseUrl}}/addresses/me
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -71,7 +71,7 @@ Authorization: Bearer {{userToken}}
 // {"status":"success","code":201,"msg":"Address created successfully","data":{"id":7},"timestamp":"2026-03-15 03:35:53"}
 
 ## Get default — debe ser solo Work ahora
-GET {{baseUrl}}/addresses/user/2
+GET {{baseUrl}}/addresses/me
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -79,7 +79,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Update address
-PATCH {{baseUrl}}/addresses/5
+PATCH {{baseUrl}}/addresses/9
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -92,25 +92,8 @@ Authorization: Bearer {{userToken}}
 
 
 ## Delete address
-DELETE {{baseUrl}}/addresses/5
+DELETE {{baseUrl}}/addresses/9
 Authorization: Bearer {{userToken}}
 
 ### Response
 // {"status":"success","code":200,"msg":"Address deleted successfully","data":null,"timestamp":"2026-03-15 03:36:51"}
-
-
-## Fail — user not found
-POST {{baseUrl}}/addresses
-Content-Type: {{contentType}}
-Authorization: Bearer {{adminToken}}
-
-{
-    "id_user": 999,
-    "street": "Test",
-    "city": "Test",
-    "state": "Test",
-    "zip_code": "00000"
-}
-
-### Response
-// {"status":"error","code":404,"msg":"User not found","data":null,"timestamp":"2026-03-15 03:36:59"}
