@@ -1,13 +1,12 @@
 # orders.http
 @baseUrl = http://localhost:8000
 @contentType = application/json
-@userId = 2
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzEyNzQ1LCJleHAiOjE3NzM3MTk5NDV9.yYLVTbtmwB0MRYVqGlRtN7-v8UhnauNBtV22UH3yuZI
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTI2OTAsImV4cCI6MTc3MzcxOTg5MH0.ZpOYAo5raYv0wkStyZPUMxz9tSBZOalKpgdnlrVQfy8
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzIwMTMzLCJleHAiOjE3NzM3MjczMzN9.S1y9qv03iOl4v8-xbFnh0zebWAWE0OiPS-AeDidiBUc
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTk5NTgsImV4cCI6MTc3MzcyNzE1OH0.2B2ab6luXmsKcn1Ox45Qg2p_3HdzIp4h_Hl5pG70swU
 
 
 ## Setup — agregar items al carrito primero
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -21,7 +20,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Setup — segundo item
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -35,7 +34,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Create order — success
-POST {{baseUrl}}/orders/{{userId}}
+POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -47,7 +46,7 @@ Authorization: Bearer {{userToken}}
 // {"status":"success","code":201,"msg":"Order created successfully","data":{"id":1},"timestamp":"2026-03-17 02:14:20"}
 
 ## Get cart — debe estar vacío después de la orden
-GET {{baseUrl}}/cart/{{userId}}
+GET {{baseUrl}}/cart
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -55,7 +54,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Get user orders
-GET {{baseUrl}}/orders/{{userId}}
+GET {{baseUrl}}/orders/me
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -63,7 +62,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Get order with details
-GET {{baseUrl}}/orders/{{userId}}/1
+GET {{baseUrl}}/orders/me/2
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -71,7 +70,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Cancel order
-PATCH {{baseUrl}}/orders/{{userId}}/1/cancel
+PATCH {{baseUrl}}/orders/me/2/cancel
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -87,7 +86,7 @@ Accept: {{contentType}}
 
 
 ## Fail — cart vacío
-POST {{baseUrl}}/orders/{{userId}}
+POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -100,7 +99,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Fail — address not found
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -110,7 +109,7 @@ Authorization: Bearer {{userToken}}
 }
 
 ### Fail part 2
-POST {{baseUrl}}/orders/{{userId}}
+POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -123,7 +122,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Fail — address de otro usuario
-POST {{baseUrl}}/orders/{{userId}}
+POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -144,7 +143,7 @@ Authorization: Bearer {{adminToken}}
 
 
 ## Cancel — Fail (ya cancelada)
-PATCH {{baseUrl}}/orders/{{userId}}/1/cancel
+PATCH {{baseUrl}}/orders/me/2/cancel
 Authorization: Bearer {{userToken}}
 
 ### Response

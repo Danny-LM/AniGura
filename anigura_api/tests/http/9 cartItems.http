@@ -1,13 +1,11 @@
 @baseUrl = http://localhost:8000
 @contentType = application/json
-@adminId = 1
-@userId = 2
 @adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzEyNzQ1LCJleHAiOjE3NzM3MTk5NDV9.yYLVTbtmwB0MRYVqGlRtN7-v8UhnauNBtV22UH3yuZI
 @userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTI2OTAsImV4cCI6MTc3MzcxOTg5MH0.ZpOYAo5raYv0wkStyZPUMxz9tSBZOalKpgdnlrVQfy8
 
 
 ## Get cart — vacío
-GET {{baseUrl}}/cart/{{adminId}}
+GET {{baseUrl}}/cart
 Authorization: Bearer {{adminToken}}
 
 ### Response
@@ -15,7 +13,7 @@ Authorization: Bearer {{adminToken}}
 
 
 ## Add item
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -29,7 +27,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Add same item again — debe acumular
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -43,7 +41,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Add second product
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -57,7 +55,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Get cart — con items
-GET {{baseUrl}}/cart/{{userId}}
+GET {{baseUrl}}/cart
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -65,7 +63,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Validate cart
-GET {{baseUrl}}/cart/{{userId}}/validate
+GET {{baseUrl}}/cart/validate
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -73,7 +71,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Update qty
-PATCH {{baseUrl}}/cart/{{userId}}/11
+PATCH {{baseUrl}}/cart/16
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -86,7 +84,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Update qty = 0 — debe eliminar el item
-PATCH {{baseUrl}}/cart/{{userId}}/11
+PATCH {{baseUrl}}/cart/16
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -99,7 +97,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Fail — más stock del disponible
-POST {{baseUrl}}/cart/{{userId}}
+POST {{baseUrl}}/cart
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
 
@@ -113,7 +111,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Get cart — con items
-GET {{baseUrl}}/cart/{{userId}}
+GET {{baseUrl}}/cart
 Authorization: Bearer {{userToken}}
 
 ### Response
@@ -121,7 +119,7 @@ Authorization: Bearer {{userToken}}
 
 
 ## Remove item
-DELETE {{baseUrl}}/cart/{{userId}}/13
+DELETE {{baseUrl}}/cart/17
 Authorization: Bearer {{userToken}}
 
 ### Response
