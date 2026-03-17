@@ -3,6 +3,7 @@ namespace Controllers;
 
 use Interfaces\Services\ICartItemService;
 use Core\BaseController;
+use Core\AuthMiddleware;
 use Exception;
 
 class CartItemController extends BaseController {
@@ -12,15 +13,15 @@ class CartItemController extends BaseController {
         $this->service = $service;
     }
 
-    public function show($id_user): void {
-        $this->validate(["id_user" => $id_user], ["id_user" => "num"]);
+    public function show(): void {
+        $userId = AuthMiddleware::$currentUserId; 
 
-        $cart = $this->service->getCart((int)$id_user);
+        $cart = $this->service->getCart((int)$userId);
         $this->ok($cart);
     }
 
-    public function store($id_user): void {
-        $this->validate(["id_user" => $id_user], ["id_user" => "!null|num"]);
+    public function store(): void {
+        $userId = AuthMiddleware::$currentUserId;
         
         $data = $this->getBody();
         $validated = $this->validate($data, [
@@ -29,14 +30,16 @@ class CartItemController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $this->service->addItem((int)$id_user, $validated);
+        $this->service->addItem((int)$userId, $validated);
         $this->json(201, null, "Item added to cart");
     }
 
-    public function update(int $id_user, $id_item): void {
+    public function update($id_item): void {
+        $userId = AuthMiddleware::$currentUserId;
+
         $this->validate(
-            [ "id_user" => $id_user, "id_item" => $id_item ],
-            [ "id_user" => "!null|num", "id_item" => "!null|num" ]
+            [ "id_item" => $id_item ],
+            [ "id_item" => "!null|num" ]
         );
 
         $data = $this->getBody();
@@ -45,22 +48,24 @@ class CartItemController extends BaseController {
         ]);
         if (empty($validated)) throw new Exception("No valid fields provided for update", 400);
 
-        $this->service->updateQty($id_item, $id_user, $validated["quantity"]);
+        $this->service->updateQty($id_item, $userId, $validated["quantity"]);
         $this->ok(null, "Quantity updated");
     }
 
-    public function destroy(int $id_user, $id_item): void {
+    public function destroy($id_item): void {
+        $userId = AuthMiddleware::$currentUserId;
+
         $this->validate(
-            [ "id_user" => $id_user, "id_item" => $id_item ],
-            [ "id_user" => "!null|num", "id_item" => "!null|num" ]
+            [ "id_item" => $id_item ],
+            [ "id_item" => "!null|num" ]
         );
 
-        $this->service->removeItem($id_user, $id_item);
+        $this->service->removeItem($userId, $id_item);
         $this->ok(null, "Item removed from cart");
     }
 
-    public function validateUserCart(int $id_user): void {
-        $this->validate(["id_user" => $id_user], ["id_user" => "num"]);
-        $this->ok($this->service->validateCart($id_user));
+    public function validateUserCart(): void {
+        $userId = AuthMiddleware::$currentUserId;
+        $this->ok($this->service->validateCart($userId));
     }
 }

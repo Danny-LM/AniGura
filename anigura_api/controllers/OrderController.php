@@ -4,6 +4,7 @@ namespace Controllers;
 use Exception;
 use Core\BaseController;
 use Interfaces\Services\IOrderService;
+use Core\AuthMiddleware;
 
 class OrderController extends BaseController {
     public function __construct(private IOrderService $service) {}
@@ -18,8 +19,8 @@ class OrderController extends BaseController {
         $this->ok($this->service->find((int)$id));
     }
 
-    public function store(int $id_user): void {
-        $this->validate(["id_user" => $id_user], ["id_user" => "num"]);
+    public function store(): void {
+        $id_user = AuthMiddleware::$currentUserId; 
 
         $data = $this->getBody();
         $validated = $this->validate($data, [
@@ -50,24 +51,29 @@ class OrderController extends BaseController {
         $this->ok(null, "Order deleted successfully");
     }
 
-    public function userOrders(int $userId): void {
-        $this->validate(["id_user" => $userId], ["id_user" => "num"]);
+    public function userOrders(): void {
+        $userId = AuthMiddleware::$currentUserId; 
+
         $p = $this->getPagination();
         $this->paginated($this->service->findByUser($userId, $p["page"], $p["limit"]));
     }
 
-    public function orderDetails(int $userId, int $orderId): void {
+    public function orderDetails(int $orderId): void {
+        $userId = AuthMiddleware::$currentUserId; 
+
         $this->validate(
-            ["id_user" => $userId, "id_order" => $orderId],
-            ["id_user" => "num", "id_order" => "num"]
+            ["id_order" => $orderId],
+            ["id_order" => "num"]
         );
         $this->ok($this->service->findWithDetails($userId, $orderId));
     }
 
-    public function cancel(int $userId, int $orderId): void {
+    public function cancel(int $orderId): void {
+        $userId = AuthMiddleware::$currentUserId; 
+
         $this->validate(
-            ["id_user" => $userId, "id_order" => $orderId],
-            ["id_user" => "num", "id_order" => "num"]
+            ["id_order" => $orderId],
+            ["id_order" => "num"]
         );
         $this->service->cancel($orderId, $userId);
         $this->ok(null, "Order cancelled successfully");

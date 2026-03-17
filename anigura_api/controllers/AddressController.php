@@ -3,6 +3,7 @@ namespace Controllers;
 
 use Interfaces\Services\IAddressService;
 use Core\BaseController;
+use Core\AuthMiddleware;
 use Exception;
 
 class AddressController extends BaseController {
@@ -23,7 +24,11 @@ class AddressController extends BaseController {
     }
 
     public function store(): void {
+        $userId = AuthMiddleware::$currentUserId; 
+
         $data = $this->getBody();
+        $data["id_user"] = $userId; 
+
         $validated = $this->validate($data, [
             "id_user"    => "!null|num",
             "alias"      => "max:50",
@@ -63,8 +68,8 @@ class AddressController extends BaseController {
         $this->ok(null, "Address deleted successfully");
     }
 
-    public function userDefault(int $userId): void {
-        $this->validate(["userId" => $userId], ["userId" => "num"]);
+    public function userDefault(): void {
+        $userId = AuthMiddleware::$currentUserId; 
 
         $addresses = $this->service->getDefaultByUser((int)$userId);
         if (!$addresses) throw new Exception("No default address found for user", 404);
