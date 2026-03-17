@@ -150,8 +150,8 @@ class OrderService implements IOrderService {
         if ($order["status"] !== "pending") throw new Exception("Only pending orders can be cancelled", 400);
 
         $this->model->transaction(function() use ($orderId) {
-            $locedOrder = $this->model->findForUpdate($orderId);
-            if ($locedOrder["status"] !== "pending") throw new Exception("Order is no longer pending", 400);
+            $lockedOrder = $this->model->findForUpdate($orderId);
+            if ($lockedOrder["status"] !== "pending") throw new Exception("Order is no longer pending", 400);
 
             $details = $this->detailModel->findByOrder($orderId);
 
