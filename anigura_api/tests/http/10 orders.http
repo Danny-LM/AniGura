@@ -148,3 +148,68 @@ Authorization: Bearer {{userToken}}
 
 ### Response
 // {"status":"error","code":400,"msg":"Only pending orders can be cancelled","data":null,"timestamp":"2026-03-17 02:17:03"}
+
+
+## ---- IDEMPOTENCY TESTS ----
+
+## Get specific product
+GET {{baseUrl}}/products/1
+Accept: {{contentType}}
+
+### Response
+//{"status":"success","code":200,"msg":"Request success","data":{"id":1,"id_franchise":1,"product_type":"manga_volume","name":"Frieren: Beyond Journey's End Vol. 1","description":"First volume of the acclaimed manga series.","price":"12.99","discount":"0.00","stock":25,"active":1,"sku":"MNG-FRR-001","created_at":"2026-02-24 04:00:04","updated_at":"2026-03-17 04:39:50","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg","details":{"id_product":1,"id_publisher":3,"id_media":1,"volume":1}},"timestamp":"2026-03-17 04:58:53"}
+
+
+## Setup — agregar items al carrito
+POST {{baseUrl}}/cart
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 1,
+    "quantity": 1
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-17 04:59:06"}
+
+
+## Create order con idempotency key
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+X-Idempotency-Key: test-key-order-008
+
+{
+    "id_address": 7
+}
+
+### Response
+// 
+// 
+// 
+
+
+## Verificar que solo existe UNA orden nueva
+GET {{baseUrl}}/orders/me
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"info":{"total":6,"pages":1,"current":1,"next":null,"prev":null},"results":[{"id":6,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"12.99","status":"pending","created_at":"2026-03-17 05:04:28","updated_at":"2026-03-17 05:04:28"},{"id":5,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"12.99","status":"pending","created_at":"2026-03-17 05:03:38","updated_at":"2026-03-17 05:03:38"},{"id":4,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"12.99","status":"pending","created_at":"2026-03-17 05:02:16","updated_at":"2026-03-17 05:02:16"},{"id":3,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"194.85","status":"cancelled","created_at":"2026-03-17 04:38:36","updated_at":"2026-03-17 04:39:50"},{"id":2,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"111.47","status":"cancelled","created_at":"2026-03-17 03:56:55","updated_at":"2026-03-17 04:00:29"},{"id":1,"id_user":2,"shipping_addr":"Work,789 Office Ave,Guadalajara,Jalisco,44150","total_amount":"124.46","status":"cancelled","created_at":"2026-03-17 02:14:20","updated_at":"2026-03-17 02:14:55"}]},"timestamp":"2026-03-17 05:04:52"}
+
+
+## Cancel con idempotency key
+PATCH {{baseUrl}}/orders/me/6/cancel
+Authorization: Bearer {{userToken}}
+X-Idempotency-Key: test-key-cancel-001
+
+### Response
+//
+
+
+## Verificar que stock NO se duplicó
+GET {{baseUrl}}/products/1
+Accept: {{contentType}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":{"id":1,"id_franchise":1,"product_type":"manga_volume","name":"Frieren: Beyond Journey's End Vol. 1","description":"First volume of the acclaimed manga series.","price":"12.99","discount":"0.00","stock":23,"active":1,"sku":"MNG-FRR-001","created_at":"2026-02-24 04:00:04","updated_at":"2026-03-17 05:05:37","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg","details":{"id_product":1,"id_publisher":3,"id_media":1,"volume":1}},"timestamp":"2026-03-17 05:05:51"}
