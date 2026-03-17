@@ -50,7 +50,7 @@ class RefreshTokenService implements IRefreshTokenService {
         $data = $this->model->findByToken($token);
         if (!$data) throw new Exception("Invalid refresh token", 401);
         if (strtotime($data["expires_at"]) < time()) {
-            $this->model->delete($token);
+            $this->model->deleteByToken($token);
             throw new Exception("Refresh token expired", 401);
         }
 
