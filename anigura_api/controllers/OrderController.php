@@ -18,14 +18,16 @@ class OrderController extends BaseController {
         $this->ok($this->service->find((int)$id));
     }
 
-    public function store(): void {
+    public function store(int $id_user): void {
+        $this->validate(["id_user" => $id_user], ["id_user" => "num"]);
+
         $data = $this->getBody();
         $validated = $this->validate($data, [
-            "id_user"    => "!null|num",
             "id_address" => "!null|num"
         ]);
+        if (empty($validated)) throw new Exception("No valid data provided", 400);
 
-        $id = $this->service->createFromCart((int)$validated["id_user"], $validated);
+        $id = $this->service->createFromCart($id_user, $validated);
         $this->json(201, ["id" => $id], "Order created successfully");
     }
 

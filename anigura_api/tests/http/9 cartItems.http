@@ -1,0 +1,128 @@
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@adminId = 1
+@userId = 2
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzEyNzQ1LCJleHAiOjE3NzM3MTk5NDV9.yYLVTbtmwB0MRYVqGlRtN7-v8UhnauNBtV22UH3yuZI
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTI2OTAsImV4cCI6MTc3MzcxOTg5MH0.ZpOYAo5raYv0wkStyZPUMxz9tSBZOalKpgdnlrVQfy8
+
+
+## Get cart — vacío
+GET {{baseUrl}}/cart/{{adminId}}
+Authorization: Bearer {{adminToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[],"timestamp":"2026-03-17 01:59:59"}
+
+
+## Add item
+POST {{baseUrl}}/cart/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 1,
+    "quantity": 2
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-17 02:00:15"}
+
+
+## Add same item again — debe acumular
+POST {{baseUrl}}/cart/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 1,
+    "quantity": 1
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-17 02:00:33"}
+
+
+## Add second product
+POST {{baseUrl}}/cart/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 11,
+    "quantity": 1
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-17 02:00:44"}
+
+
+## Get cart — con items
+GET {{baseUrl}}/cart/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"cart_item_id":13,"id_product":1,"quantity":4,"name":"Frieren: Beyond Journey's End Vol. 1","price":"12.99","stock":25,"active":1,"discount":"0.00","unit_price":"12.99","subtotal":"51.96","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg"},{"cart_item_id":11,"id_product":11,"quantity":8,"name":"Frieren 1\/7 Scale Figure - Good Smile","price":"89.99","stock":10,"active":1,"discount":"5.00","unit_price":"85.49","subtotal":"683.92","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbjef_im1dti.jpg"}],"timestamp":"2026-03-17 02:00:50"}
+
+
+## Validate cart
+GET {{baseUrl}}/cart/{{userId}}/validate
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"cart_item_id":13,"id_product":1,"quantity":4,"name":"Frieren: Beyond Journey's End Vol. 1","price":"12.99","stock":25,"active":1,"discount":"0.00","unit_price":"12.99","subtotal":"51.96","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg","status":"ok","available":25},{"cart_item_id":11,"id_product":11,"quantity":8,"name":"Frieren 1\/7 Scale Figure - Good Smile","price":"89.99","stock":10,"active":1,"discount":"5.00","unit_price":"85.49","subtotal":"683.92","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbjef_im1dti.jpg","status":"ok","available":10}],"timestamp":"2026-03-17 02:01:11"}
+
+
+## Update qty
+PATCH {{baseUrl}}/cart/{{userId}}/11
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "quantity": 5
+}
+
+### Response
+// {"status":"success","code":200,"msg":"Quantity updated","data":null,"timestamp":"2026-03-17 02:01:22"}
+
+
+## Update qty = 0 — debe eliminar el item
+PATCH {{baseUrl}}/cart/{{userId}}/11
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "quantity": 0
+}
+
+### Response
+// {"status":"success","code":200,"msg":"Quantity updated","data":null,"timestamp":"2026-03-17 02:01:33"}
+
+
+## Fail — más stock del disponible
+POST {{baseUrl}}/cart/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 11,
+    "quantity": 999
+}
+
+### Response
+// {"status":"error","code":400,"msg":"Only 10 units available","data":null,"timestamp":"2026-03-17 02:01:45"}
+
+
+## Get cart — con items
+GET {{baseUrl}}/cart/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"cart_item_id":13,"id_product":1,"quantity":4,"name":"Frieren: Beyond Journey's End Vol. 1","price":"12.99","stock":25,"active":1,"discount":"0.00","unit_price":"12.99","subtotal":"51.96","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg"}],"timestamp":"2026-03-17 02:02:19"}
+
+
+## Remove item
+DELETE {{baseUrl}}/cart/{{userId}}/13
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Item removed from cart","data":null,"timestamp":"2026-03-17 02:02:33"}
