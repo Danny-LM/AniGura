@@ -11,14 +11,16 @@ export class ProductService {
      * @param limit 
      * @returns 
      */
-    async getAll(page:number=1, limit:number=20): Promise<Paginated<Product>> {
-        const cacheKey = `products?page=${page}&limit=${limit}`;
+    async getAll(page: number = 1, limit: number = 20): Promise<Paginated<Product>> {
+        const cacheKey = `products:page=${page}:limit=${limit}`;
 
         const cached = cacheStore.get<Paginated<Product>>(cacheKey);
         if (cached) return cached;
 
-        const url = `${ENDPOINTS.PRODUCTS}?page=${page}&limit=${limit}`;
-        const response = await this.api.get<Paginated<Product>>(url);
+        const response = await this.api.get<Paginated<Product>>(
+            ENDPOINTS.PRODUCTS.BASE,
+            { params: { page, limit } }
+        );
 
         if (!response.data) throw new Error("Failed to fetch products");
 
@@ -32,9 +34,7 @@ export class ProductService {
      * @returns 
      */
     async getById(id:number): Promise<Product> {
-        const url = `${ENDPOINTS.PRODUCTS}/${id}`;
-        const response = await this.api.get<Product>(url);
-
+        const response = await this.api.get<Product>(ENDPOINTS.PRODUCTS.BY_ID(id));
         if (!response.data) throw new Error("Product not found");
 
         return response.data;

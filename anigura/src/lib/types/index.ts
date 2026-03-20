@@ -4,4 +4,5 @@ export * from "./product.types";
 export * from "./cart.types";
 export * from "./order.types";
 export * from "./address.types";
+export * from "./ui.types";
 

@@ -5,6 +5,7 @@ import type {
     CartItem, CartValidationItem,
     AddToCartRequest, UpdateCartRequest
 } from "../types";
+import { getErrorMsg } from "../utils";
 
 export class CartService {
     constructor(private api=apiClient) {}
@@ -21,16 +22,16 @@ export class CartService {
                 this.api.get<CartValidationItem[]>(ENDPOINTS.CART.VALIDATE)
             ]);
 
-            const cartItems = cartRes.data || [];
-            const validationItems = validationRes.data || [];
+            const cartItems       = cartRes.data ?? [];
+            const validationItems = validationRes.data ?? [];
 
             const mergedItems: CartValidationItem[] = cartItems.map(item => {
-                const validationInfo = validationItems.find(v => v.id_product === item.id_product);
+                const validation = validationItems.find(v => v.id_product === item.id_product);
 
                 return {
                     ...item,
-                    status: validationInfo?.status || "ok",
-                    available: validationInfo?.available || 0,
+                    status: validation?.status || "ok",
+                    available: validation?.available || 0,
                 };
             });
 
@@ -54,9 +55,8 @@ export class CartService {
 
             await this.loadCart();
 
-        } catch (error: any) {
-            const msg = error.response?.data?.msg || "Failed to add product";
-            uiStore.showToast(msg, "error");
+        } catch (error) {
+            uiStore.showToast(getErrorMsg(error, "Failed to add product"), "error");
         }
     }
 
@@ -72,14 +72,13 @@ export class CartService {
 
         try {
             const payload: UpdateCartRequest = { quantity: newQty };
-            await this.api.patch(`${ENDPOINTS.CART.ITEM(cartItemId)}`, payload);
+            await this.api.patch(ENDPOINTS.CART.ITEM(cartItemId), payload);
 
             if (newQty === 0) await this.loadCart();
         
         } catch (error: any) {
             cartStore.updateQty(productId, oldQty);
-            const msg = error.response?.data?.msg || "Not enough stock available";
-            uiStore.showToast(msg, "error");
+            uiStore.showToast(getErrorMsg(error, "Not enough stock available"), "error");
         }
     }
 
@@ -88,16 +87,16 @@ export class CartService {
      * @param productId 
      * @param cartItemId 
      */
-    async removeItem(productId:number, cartItemId:number): Promise<void> {
+    async removeItem(productId: number, cartItemId: number): Promise<void> {
         cartStore.removeItem(productId);
 
         try {
-            await this.api.delete(`${ENDPOINTS.CART.ITEM(cartItemId)}`);
+            await this.api.delete(ENDPOINTS.CART.ITEM(cartItemId));
             await this.loadCart();
 
-        } catch (error: any) {
+        } catch (error) {
             await this.loadCart();
-            uiStore.showToast("Failed to remove item", "error");
+            uiStore.showToast(getErrorMsg(error,"Failed to remove item"), "error");
         }
     }
 }
