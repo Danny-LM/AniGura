@@ -18,7 +18,7 @@ export interface CreateAddressRequest {
     city:        string;
     state:       string;
     zip_code:    string;
-    is_default?: boolean;
+    is_default?: 0 | 1;
 }
 
 export type UpdateAddressRequest = Partial<CreateAddressRequest>;

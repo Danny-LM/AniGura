@@ -1,7 +1,7 @@
-import type { CartItem } from "../types";
+import type { CartValidationItem } from "../types";
 
 class CartStore {
-    items = $state<CartItem[]>([]);
+    items = $state<CartValidationItem[]>([]);
 
     get totalItems(): number {
         return this.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -11,7 +11,7 @@ class CartStore {
         return this.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     }
 
-    hydrate(apiItems: CartItem[]) {
+    hydrate(apiItems: CartValidationItem[]) {
         this.items = apiItems;
     }
 
