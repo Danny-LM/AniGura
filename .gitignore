@@ -31,3 +31,4 @@ dist-ssr
 *.sln
 *.sw?
 tasks.md
+_old/

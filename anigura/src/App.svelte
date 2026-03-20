@@ -1,89 +1,60 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { API } from "./lib/api";
-    import type { Product } from "./lib/types";
-    import Home from "./components/Home.svelte";
-    import { cartCount } from "./lib/stores/cartStore";
-    import CartView from "./components/CartView.svelte";
-    import AuthModal from "./components/AuthModal.svelte";
-    import { CartService } from "./lib/services/cartService";
-    import { authStore, isLoggedIn } from "./lib/stores/authStore";
+    import Router from "svelte-spa-router";
+    import { routes } from "./router";
+    import { authStore } from "./lib/stores/auth.store";
+    import { uiStore } from "./lib/stores/ui.store";
+    import Toast from "./components/ui/Toast.svelte";
+    import Spinner from "./components/ui/Spinner.svelte";
 
-    type View = "home" | "cart";
-
-    let view         = $state<View>("home");
-    let products     = $state<Product[]>([]);
-    let error        = $state<string | null>(null);
-    let activeFilter = $state("all");
-    let authOpen     = $state(false);
-    let pendingProduct = $state<Product | null>(null);
-
-    onMount(async () => {
-        try {
-            products = await API.getProducts();
-        } catch (e) {
-            error = e instanceof Error ? e.message : "Error";
-        }
-
-        if ($isLoggedIn) await CartService.load();
+    onMount(() => {
+        window.addEventListener("auth:sessionExpired", () => {
+            authStore.logout();
+            uiStore.showToast("Your session has expired. Please login again.", "warning", 5000);
+        });
     });
-
-    async function handleAddToCart(product: Product) {
-        if (!$isLoggedIn) {
-            pendingProduct = product;
-            authOpen = true;
-            return;
-        }
-        try {
-            await CartService.add(product.id);
-        } catch (e) {
-            console.error("Failed to add to cart:", e);
-        }
-    }
-
-    async function handleAuthSuccess() {
-        authOpen = false;
-        await CartService.load();
-        if (pendingProduct) {
-            try {
-                await CartService.add(pendingProduct.id);
-            } catch (e) {
-                console.error("Failed to add pending product:", e);
-            } finally {
-                pendingProduct = null;
-            }
-        }
-    }
-
-    function handleLogout() {
-        authStore.logout();
-        CartService.clear();
-    }
 </script>
 
-{#if view === "home"}
-    <Home
-        {products}
-        {error}
-        {activeFilter}
-        cartCount={$cartCount}
-        onFilterChange={(f) => activeFilter = f}
-        onAddToCart={handleAddToCart}
-        onCartClick={() => view = "cart"}
-        onAuthClick={() => authOpen = true}
-        onLogout={handleLogout}
-    />
-{:else if view === "cart"}
-    <!-- CartView viene después -->
-    <CartView
-        onBack={() => view = "home"}
-        onAuthClick={() => authOpen = true}
-        onLogout={handleLogout}
-    />
+<div class="toast-container">
+    {#each uiStore.toasts as toast (toast.id) }
+        <Toast
+            id={toast.id}
+            message={toast.msg}
+            type={toast.type}
+            onClose={(id) => uiStore.removeToast(id)}
+        />        
+    {/each}
+</div>
+
+{#if uiStore.globalLoading}
+    <div class="global-loader">
+        <Spinner size={40} />
+    </div>
 {/if}
 
-<AuthModal
-    open={authOpen}
-    onClose={() => { authOpen = false; pendingProduct = null; }}
-    onSuccess={handleAuthSuccess}
-/>
+<Router {routes} />
+
+<style>
+    .toast-container {
+        position: fixed;
+        bottom: var(--space-5);
+        right: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        z-index: 9999;
+    }
+
+    .global-loader {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(2px);
+    }
+</style>
+
