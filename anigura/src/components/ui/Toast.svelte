@@ -1,8 +1,7 @@
 <script lang="ts">
     import { fly, fade } from "svelte/transition";
     import Icon from "./Icon.svelte";
-
-    export type ToastType = "success"|"error"|"warning"|"info";
+    import type { ToastType } from "../../lib/types";
 
     interface Props {
         id:      string;
