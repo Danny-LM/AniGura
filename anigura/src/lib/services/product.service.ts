@@ -1,6 +1,6 @@
 import { apiClient, ENDPOINTS } from "../api";
 import { cacheStore } from "../stores/cache.store.svelte";
-import type { Paginated, Product } from "../types";
+import type { Paginated, Product, ProductType } from "../types";
 
 export class ProductService {
     constructor(private api=apiClient) {}
@@ -11,15 +11,18 @@ export class ProductService {
      * @param limit 
      * @returns 
      */
-    async getAll(page: number = 1, limit: number = 20): Promise<Paginated<Product>> {
-        const cacheKey = `products:page=${page}:limit=${limit}`;
+    async getAll(page: number = 1, limit: number = 20, type?: ProductType): Promise<Paginated<Product>> {
+        const cacheKey = `products:page=${page}:limit=${limit}:?type=${type ?? "all"}`;
 
         const cached = cacheStore.get<Paginated<Product>>(cacheKey);
         if (cached) return cached;
 
+        const params: Record<string, unknown> = { page, limit };
+        if (type) params.product_type = type;
+
         const response = await this.api.get<Paginated<Product>>(
             ENDPOINTS.PRODUCTS.BASE,
-            { params: { page, limit } }
+            { params }
         );
 
         if (!response.data) throw new Error("Failed to fetch products");

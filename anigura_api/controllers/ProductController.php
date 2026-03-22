@@ -14,7 +14,8 @@ class ProductController extends BaseController {
 
     public function index(): void {
         $p = $this->getPagination();
-        $this->paginated($this->service->findAll($p["page"], $p["limit"]));
+        $type = $_GET["product_type"] ?? null;
+        $this->paginated($this->service->findAll($p["page"], $p["limit"], $type));
     }
 
     public function show($id): void {
