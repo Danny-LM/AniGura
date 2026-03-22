@@ -3,7 +3,8 @@
     import Button from "../../ui/Button.svelte";
     import { authService } from "../../../lib/services/auth.service";
     import type { LoginRequest, RegisterRequest } from "../../../lib/types";
-  import { uiStore } from "../../../lib/stores/ui.store.svelte";
+    import { uiStore } from "../../../lib/stores/ui.store.svelte";
+    import { getErrorMsg } from "../../../lib/utils";
 
     interface Props {
         open:       boolean;
@@ -17,7 +18,7 @@
 
     let activeTab = $state<Tab>("login");
     let loading   = $state(false);
-    let error     = $state<string|null>(null);
+    let error     = $state<string |null>(null);
 
     let fullName = $state("");
     let email    = $state("");
@@ -58,8 +59,8 @@
             handleClose();
             onSuccess?.();
 
-        } catch (error) {
-            error = error instanceof Error ? error.message : "Something went wrong";
+        } catch (err) {
+            error = getErrorMsg(err, "Something went wrong");
         } finally {
             loading = false;
         }
@@ -73,6 +74,11 @@
                 class="tab-btn"
                 class:active={activeTab === "login"}
                 onclick={() => switchTab("login")}
+            >Login</button>
+            <button
+                class="tab-btn"
+                class:active={activeTab === "register"}
+                onclick={() => switchTab("register")}
             >Register</button>
         </div>
 
@@ -114,13 +120,15 @@
     {/snippet}
 
     {#snippet footer()}
-        <Button
-            variant="primary" size="md" {loading}
-            disabled={loading}
-            onClick={handleSubmit}
-        >
-            {activeTab === "login" ? "Login" : "Create account"}
-        </Button>
+        <div class="footer-action">
+            <Button
+                variant="primary" size="md" {loading}
+                disabled={loading}
+                onClick={handleSubmit}
+            >
+                {activeTab === "login" ? "Login" : "Create account"}
+            </Button>
+        </div>
     {/snippet}
 
 </Modal>
@@ -128,8 +136,8 @@
 <style>
     .tabs {
         display: flex;
+        width: 100%;
         border-bottom: 1px solid var(--border);
-        margin: calc(-1 * var(--space-5));
         margin-bottom: var(--space-4);
     }
 
@@ -142,6 +150,7 @@
         color: var(--text-muted);
         font-size: 14px; font-weight: 600;
         transition: all 0.15s;
+        text-align: center;
     }
 
     .tab-btn:hover { color: var(--text-primary); }
@@ -166,6 +175,9 @@
         gap: var(--space-1);
         margin-bottom: var(--space-3);
     }
+
+    .footer-action { width: 100%; }
+    .footer-action :global(button) { width: 100%; }
 
     label {
         font-size: 12px; font-weight: 600;
