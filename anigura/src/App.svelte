@@ -2,8 +2,8 @@
     import { onMount } from "svelte";
     import Router from "svelte-spa-router";
     import { routes } from "./router";
-    import { authStore } from "./lib/stores/auth.store";
-    import { uiStore } from "./lib/stores/ui.store";
+    import { authStore } from "./lib/stores/auth.store.svelte";
+    import { uiStore } from "./lib/stores/ui.store.svelte";
     import Toast from "./components/ui/Toast.svelte";
     import Spinner from "./components/ui/Spinner.svelte";
 

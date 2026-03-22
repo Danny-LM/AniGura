@@ -1,7 +1,7 @@
 import { apiClient, ENDPOINTS } from "../api";
-import { uiStore } from "../stores/ui.store";
-import { addressStore } from "../stores/address.store";
-import { authStore } from "../stores/auth.store";
+import { uiStore } from "../stores/ui.store.svelte";
+import { addressStore } from "../stores/address.store.svelte";
+import { authStore } from "../stores/auth.store.svelte";
 import type { Address, CreateAddressRequest, UpdateAddressRequest } from "../types";
 import { getErrorMsg } from "../utils";
 

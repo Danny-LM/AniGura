@@ -1,6 +1,6 @@
 import { apiClient, ENDPOINTS } from "../api";
-import { cartStore } from "../stores/cart.store";
-import { uiStore } from "../stores/ui.store";
+import { uiStore } from "../stores/ui.store.svelte";
+import { cartStore } from "../stores/cart.store.svelte";
 import type {
     CartItem, CartValidationItem,
     AddToCartRequest, UpdateCartRequest
@@ -76,7 +76,7 @@ export class CartService {
 
             if (newQty === 0) await this.loadCart();
         
-        } catch (error: any) {
+        } catch (error) {
             cartStore.updateQty(productId, oldQty);
             uiStore.showToast(getErrorMsg(error, "Not enough stock available"), "error");
         }
