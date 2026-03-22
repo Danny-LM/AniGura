@@ -4,7 +4,7 @@ interface CacheEntry<T> {
 }
 
 class CacheStore {
-    private cache = $state(new Map<string, CacheEntry<any>>());
+    private cache = $state(new Map<string, CacheEntry<unknown>>());
     private defaulTTL = 5*60*1000;
 
     set<T>(key: string, data: T) {

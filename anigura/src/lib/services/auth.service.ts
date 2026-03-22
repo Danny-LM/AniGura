@@ -1,7 +1,7 @@
 import { apiClient, ENDPOINTS } from "../api";
-import { authStore } from "../stores/auth.store";
-import { cartStore } from "../stores/cart.store";
-import { cacheStore } from "../stores/cache.store";
+import { authStore } from "../stores/auth.store.svelte";
+import { cartStore } from "../stores/cart.store.svelte";
+import { cacheStore } from "../stores/cache.store.svelte";
 import type { LoginRequest, RegisterRequest, AuthResponse } from "../types";
 
 export class AuthService {

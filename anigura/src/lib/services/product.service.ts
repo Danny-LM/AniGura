@@ -1,5 +1,5 @@
 import { apiClient, ENDPOINTS } from "../api";
-import { cacheStore } from "../stores/cache.store";
+import { cacheStore } from "../stores/cache.store.svelte";
 import type { Paginated, Product } from "../types";
 
 export class ProductService {
