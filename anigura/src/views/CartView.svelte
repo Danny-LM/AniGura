@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import { push } from "svelte-spa-router";
     import Navbar from "../components/layout/Navbar.svelte";
     import CartItemCard from "../components/features/cart/CartItemCard.svelte";
@@ -9,6 +9,7 @@
     import { authStore } from "../lib/stores/auth.store.svelte";
     import { cartService } from "../lib/services/cart.service";
     import { uiStore } from "../lib/stores/ui.store.svelte";
+    import { getCartItemStatus } from "../lib/types";
 
     if (!authStore.isLoggedIn) push("/");
 
@@ -18,7 +19,7 @@
     function syncSelection() {
         selectedIds = new Set(
             cartStore.items
-                .filter(i => i.status === "ok")
+                .filter(i => getCartItemStatus(i) === "ok")
                 .map(i => i.cart_item_id)
         );
     }
@@ -32,11 +33,11 @@
     );
 
     const hasIssues = $derived(
-        cartStore.items.some(i => i.status !== "ok")
+        cartStore.items.some(i => getCartItemStatus(i) !== "ok")
     );
 
     const availableItems = $derived(
-        cartStore.items.filter(i => i.status === "ok")
+        cartStore.items.filter(i => getCartItemStatus(i) === "ok")
     );
 
     const allSelected = $derived(
@@ -68,7 +69,22 @@
         await cartService.loadCart();
         syncSelection();
         loading = false;
+
+        cartService.startPolling();
+
+        document.addEventListener("visibilitychange", onVisible);
     });
+
+    onDestroy(() => {
+        cartService.stopPolling();
+        document.removeEventListener("visibilitychange", onVisible);
+    });
+
+    function onVisible() {
+        if (document.visibilityState === "visible") {
+            cartService.startPolling();
+        }
+    }
 </script>
 
 <Navbar onAuthClick={() => {}} minimal={true} />
@@ -117,7 +133,7 @@
                     </label>
                 </div>
 
-                {#each cartStore.items as item (item.cart_item_id)}
+                {#each cartStore.sortedItems as item (item.cart_item_id)}
                     <CartItemCard
                         {item}
                         selected={selectedIds.has(item.cart_item_id)}

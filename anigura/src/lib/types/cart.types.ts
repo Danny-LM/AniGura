@@ -24,3 +24,9 @@ export interface UpdateCartRequest {
     quantity: number;
 }
 
+
+export function getCartItemStatus(item: CartItem): CartItemStatus {
+    if (!item.active || item.available === 0) return "unavailable";
+    if (item.quantity > item.available)       return "insufficient";
+    return "ok";
+}
