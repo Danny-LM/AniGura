@@ -1,7 +1,10 @@
 <script lang="ts">
-    import type { CartItem, CartItemStatus } from "../../../lib/types";
-    import { cartService } from "../../../lib/services/cart.service"; 
+    import type { CartItem } from "../../../lib/types";
+    import { cartService } from "../../../lib/services/cart.service";
+    import { cartStore } from "../../../lib/stores/cart.store.svelte";
     import { uiStore } from "../../../lib/stores/ui.store.svelte";
+    import Spinner from "../../ui/Spinner.svelte";
+    import { getCartItemStatus } from "../../../lib/types";
 
     interface Props {
         item:       CartItem;
@@ -11,16 +14,14 @@
 
     let { item, selected, onSelected }: Props = $props();
 
-    const status = $derived<CartItemStatus>(
-        !item.active || item.available === 0 ? "unavailable"  :
-        item.quantity > item.available       ? "insufficient" :
-        "ok"
-    );
-
+    const status         = $derived(getCartItemStatus(item));
     const isUnavailable  = $derived(status === "unavailable");
     const isInsufficient = $derived(status === "insufficient");
     const hasIssue       = $derived(status !== "ok");
     const canSelect      = $derived(status === "ok");
+
+    const syncing = $derived(cartStore.isSyncing(item.cart_item_id));
+    const blocked = $derived(isUnavailable || syncing);
 
     const STATUS_MSG = $derived({
         unavailable:  "Product no longer available",
@@ -28,22 +29,37 @@
     });
 
     async function changeQty(amount: number) {
-        const oldQty = item.quantity;
-        const newQty = oldQty + amount;
-        if (newQty <= 0) return uiStore.showToast("Invalid quantity", "error");
-        
-        await cartService.updateQuantity(
-            item.id_product, item.cart_item_id, newQty, oldQty
+        let newQty = item.quantity + amount;
+
+        if (amount < 0 && isInsufficient) {
+            newQty = Math.min(newQty, item.available);
+        }
+
+        if (newQty <= 0) {
+            remove();
+            return;
+        }
+
+        if (amount > 0 && item.quantity >= item.available) {
+            uiStore.showToast(`Only ${item.available} available`, "warning");
+            return;
+        }
+
+        cartService.updateQuantity(
+            item.id_product, item.cart_item_id, newQty, item.quantity
         );
     }
 
     async function handleInputChange(e: Event) {
-        const newQty = parseInt((e.currentTarget as HTMLInputElement).value);
-        if (!isNaN(newQty) && newQty > 0) {
-            await cartService.updateQuantity(
-                item.id_product, item.cart_item_id, newQty, item.quantity
-            );
-        }
+        const raw = parseInt((e.currentTarget as HTMLInputElement).value);
+        if (isNaN(raw) || raw < 0) return;
+        if (raw === 0) { remove(); return; }
+
+        const newQty = Math.min(raw, item.available);
+
+        cartService.updateQuantity(
+            item.id_product, item.cart_item_id, newQty, item.quantity
+        );
     }
 
     async function remove() {
@@ -51,7 +67,8 @@
     }
 </script>
 
-<div class="cart-item" class:disabled={hasIssue}>
+<div class="cart-item" class:has-issue={hasIssue} class:is-syncing={syncing}>
+
     <label class="checkbox-wrapper">
         <input
             type="checkbox"
@@ -73,7 +90,7 @@
         <p class="item-name">{item.name}</p>
 
         {#if hasIssue}
-            <p class="item-warning">{STATUS_MSG[status as keyof typeof STATUS_MSG]}</p>
+            <p class="item-warning">{STATUS_MSG[status as keyof typeof STATUS_MSG] ?? ""}</p>
         {/if}
 
         <div class="item-price">
@@ -89,7 +106,8 @@
             <button
                 class="qty-btn"
                 onclick={() => changeQty(-1)}
-                disabled={isUnavailable}
+                disabled={blocked}
+                aria-label="Decrease quantity"
             >-</button>
 
             <input
@@ -98,20 +116,33 @@
                 value={item.quantity}
                 min="1"
                 max={item.available}
-                disabled={isUnavailable}
+                disabled={blocked}
                 onchange={handleInputChange}
             />
 
             <button
                 class="qty-btn"
                 onclick={() => changeQty(1)}
-                disabled={isUnavailable || isInsufficient || item.quantity >= item.available}
+                disabled={blocked || isInsufficient || item.quantity >= item.available}
+                aria-label="Increase quantity"
             >+</button>
         </div>
 
-        <p class="item-subtotal">${item.subtotal}</p>
+        <div class="subtotal-row">
+            {#if syncing}
+                <span class="sync-dot" title="Saving...">
+                    <Spinner size={12} color="var(--text-muted)" />
+                </span>
+            {/if}
+            <p class="item-subtotal" class:faded={syncing}>${item.subtotal}</p>
+        </div>
 
-        <button class="remove-btn" onclick={remove} aria-label="Remove">X</button>
+        <button
+            class="remove-btn"
+            onclick={remove}
+            disabled={syncing}
+            aria-label="Remove item"
+        >X</button>
     </div>
 
 </div>
@@ -125,22 +156,19 @@
         background: var(--bg-surface);
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
-        transition: border-color 0.15s;
+        transition: border-color 0.2s, opacity 0.2s;
     }
 
-    .cart-item:hover { border-color: var(--border-accent); }
-
-    .cart-item.disabled {
-        opacity: 0.6;
-        border-color: var(--danger);
-    }
+    .cart-item:hover          { border-color: var(--border-accent); }
+    .cart-item.has-issue      { opacity: 0.6; border-color: var(--danger); }
+    .cart-item.is-syncing     { border-color: var(--border-accent); }
 
     .checkbox-wrapper input[type="checkbox"] {
         width: 18px; height: 18px;
         accent-color: var(--accent);
         cursor: pointer;
+        flex-shrink: 0;
     }
-
     .checkbox-wrapper input:disabled { cursor: not-allowed; }
 
     .item-image {
@@ -150,135 +178,105 @@
         flex-shrink: 0;
         background: var(--bg-elevated);
     }
-
-    .item-image img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-    }
-
+    .item-image img { width: 100%; height: 100%; object-fit: cover; }
     .no-img {
         width: 100%; height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-muted);
-        font-size: 20px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-muted); font-size: 20px;
     }
 
     .item-info {
         flex: 1;
-        display: flex;
-        flex-direction: column;
+        display: flex; flex-direction: column;
         gap: var(--space-1);
         min-width: 0;
     }
-
     .item-name {
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 14px; font-weight: 600;
         color: var(--text-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
     .item-warning {
-        font-size: 12px;
+        font-size: 12px; font-weight: 600;
         color: var(--danger);
-        font-weight: 600;
     }
-
     .item-price {
-        display: flex;
-        align-items: center;
+        display: flex; align-items: center;
         gap: var(--space-2);
     }
-
     .unit-price {
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 14px; font-weight: 700;
         color: var(--accent-light);
     }
-
     .original-price {
-        font-size: 12px;
-        color: var(--text-muted);
+        font-size: 12px; color: var(--text-muted);
         text-decoration: line-through;
     }
 
     .item-controls {
-        display: flex;
-        flex-direction: column;
+        display: flex; flex-direction: column;
         align-items: flex-end;
         gap: var(--space-2);
         flex-shrink: 0;
     }
 
     .qty-control {
-        display: flex;
-        align-items: center;
+        display: flex; align-items: center;
         background: var(--bg-elevated);
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         overflow: hidden;
     }
-
     .qty-btn {
         width: 32px; height: 32px;
-        background: transparent;
-        border: none;
+        background: transparent; border: none;
         color: var(--text-primary);
-        font-size: 18px;
-        cursor: pointer;
+        font-size: 18px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
         transition: background 0.15s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
-
     .qty-btn:hover:not(:disabled) { background: var(--bg-hover); }
     .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .qty-input {
         width: 48px; height: 32px;
-        background: transparent;
-        border: none;
+        background: transparent; border: none;
         border-left: 1px solid var(--border);
         border-right: 1px solid var(--border);
         color: var(--text-primary);
-        font-size: 14px;
-        font-weight: 600;
-        text-align: center;
-        outline: none;
-        -moz-appearance: textfield;
-        appearance: textfield;
+        font-size: 14px; font-weight: 600;
+        text-align: center; outline: none;
+        -moz-appearance: textfield; appearance: textfield;
     }
-
     .qty-input::-webkit-outer-spin-button,
-    .qty-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-    }
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .qty-input:disabled { opacity: 0.5; }
 
-    .item-subtotal {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--text-primary);
+    .subtotal-row {
+        display: flex; align-items: center;
+        gap: var(--space-1);
     }
+    .sync-dot {
+        display: flex; align-items: center;
+    }
+    .item-subtotal {
+        font-size: 15px; font-weight: 700;
+        color: var(--text-primary);
+        transition: opacity 0.2s;
+    }
+    .faded { opacity: 0.45; }
 
     .remove-btn {
-        background: transparent;
-        border: none;
+        background: transparent; border: none;
         color: var(--text-muted);
-        font-size: 12px;
-        padding: var(--space-1);
+        font-size: 12px; padding: var(--space-1);
         border-radius: var(--radius-sm);
-        transition: all 0.15s;
-        cursor: pointer;
+        transition: all 0.15s; cursor: pointer;
     }
-
-    .remove-btn:hover {
+    .remove-btn:hover:not(:disabled) {
         color: var(--danger);
         background: rgba(239, 68, 68, 0.1);
     }
+    .remove-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 

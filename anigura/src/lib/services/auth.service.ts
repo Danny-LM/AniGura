@@ -1,6 +1,7 @@
 import { apiClient, ENDPOINTS } from "../api";
 import { authStore } from "../stores/auth.store.svelte";
 import { cartStore } from "../stores/cart.store.svelte";
+import { cartService, CartService } from "./cart.service";
 import { cacheStore } from "../stores/cache.store.svelte";
 import type { LoginRequest, RegisterRequest, AuthResponse } from "../types";
 
@@ -20,6 +21,8 @@ export class AuthService {
         if (response.data) {
             const { access_token, refresh_token, user } = response.data;
             authStore.login({ access_token, refresh_token }, user);
+
+            cartService.silentSync();
         }
     }
 
@@ -37,6 +40,8 @@ export class AuthService {
         if (response.data) {
             const { access_token, refresh_token, user } = response.data;
             authStore.login({ access_token, refresh_token }, user);
+
+            cartService.silentSync();
         }
     }
 
