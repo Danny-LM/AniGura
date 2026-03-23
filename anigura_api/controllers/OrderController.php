@@ -24,9 +24,14 @@ class OrderController extends BaseController {
 
         $data = $this->getBody();
         $validated = $this->validate($data, [
-            "id_address" => "!null|num"
+            "id_address" => "!null|num",
+            "item_ids"   => ""
         ]);
         if (empty($validated)) throw new Exception("No valid data provided", 400);
+
+        if (isset($validated["item_ids"]) && !is_array($validated["item_ids"])) {
+            throw new Exception("Invalid item_ids format. It must be an array", 400);
+        }
 
         IdempotencyMiddleware::begin($idem, $id_user);
 
