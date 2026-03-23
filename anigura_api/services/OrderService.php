@@ -52,9 +52,19 @@ class OrderService implements IOrderService {
     }
 
     public function createFromCart(int $userId, array $data): int {
+        if (!$this->userModel->exists($userId)) throw new Exception("User not found", 404);
+
         $cart = $this->cartModel->getFullCart($userId);
         if (empty($cart)) throw new Exception("Cart is empty", 400);
-        if (!$this->userModel->exists($userId)) throw new Exception("User not found", 404);
+
+        if (!empty($data["item_ids"])) {
+            $itemIds =  $data["item_ids"];
+            $cart = array_values(array_filter($cart,
+                fn($item) => in_array($item["cart_item_id"], $itemIds)
+            ));
+
+            if (empty($cart)) throw new Exception("No valid items selected", 400);
+        }
 
         $address = $this->addressModel->find($data["id_address"]);
         if (!$address) throw new Exception("Address not found", 404);

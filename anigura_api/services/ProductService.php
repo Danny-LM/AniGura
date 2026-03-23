@@ -24,8 +24,8 @@ class ProductService implements IProductService {
         $this->handlers = $handlers;
     }
 
-    public function findAll(int $page = 1, int $limit = 20) {
-        $paginated = $this->model->all($page, $limit);
+    public function findAll(int $page = 1, int $limit = 20, ?string $type = null) {
+        $paginated = $this->model->all($page, $limit, $type);
         if (empty($paginated)) return $paginated;
 
         $allCovers = $this->imageModel->where(["is_cover" => 1]);

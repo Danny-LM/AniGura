@@ -63,9 +63,4 @@ class CartItemController extends BaseController {
         $this->service->removeItem($userId, $id_item);
         $this->ok(null, "Item removed from cart");
     }
-
-    public function validateUserCart(): void {
-        $userId = AuthMiddleware::$currentUserId;
-        $this->ok($this->service->validateCart($userId));
-    }
 }

@@ -2,27 +2,29 @@
 use Interfaces\Models\{
     IUserModel, IFranchiseModel, IPublisherModel, IAddressModel, IMediaEntryModel,
     IProductModel, ICartItemModel, IProductImageModel, IRefreshTokenModel, IOrderModel,
-    IOrderDetailModel,
+    IOrderDetailModel, IStockReservationModel,
 };
 use Interfaces\Services\{
     IUserService, IFranchiseService, IPublisherService, IAddressService, IMediaEntryService,
     IProductService, ICartItemService, IProductImageService, IRefreshTokenService, IAuthService,
-    IOrderService,
+    IOrderService, IStockReservationService,
 };
 use Models\{
     UserModel, FranchiseModel, PublisherModel, AddressModel, MediaEntryModel,
     ProductModel, MangaVolumeDetailModel, FigureDetailModel, SetboxDetailModel,
     CartItemModel, ProductImageModel, RefreshTokenModel, OrderModel, OrderDetailModel,
+    StockReservationModel,
 };
 use Services\{
     UserService, FranchiseService, PublisherService, AddressService, MediaEntryService,
     ProductService, CartItemService, ProductImageService, RefreshTokenService, AuthService,
-    OrderService,
+    OrderService, StockReservationService,
 };
 use Services\Handlers\{ MangaVolumeDetailHandler, FigureDetailHandler, SetboxDetailHandler };
 use Controllers\{
     UserController, FranchiseController, PublisherController, AddressController, MediaEntryController,
     ProductController, CartItemController, ProductImageController, AuthController, OrderController,
+    StockReservationController,
 };
 
 // --- Models ---
@@ -37,6 +39,7 @@ $container->bind(IProductImageModel::class,  fn() => new ProductImageModel());
 $container->bind(IRefreshTokenModel::class,  fn() => new RefreshTokenModel());
 $container->bind(IOrderModel::class,         fn() => new OrderModel());
 $container->bind(IOrderDetailModel::class, fn() => new OrderDetailModel());
+$container->bind(IStockReservationModel::class, fn() => new StockReservationModel());
 
 // --- Services ---
 $container->bind(IUserService::class,        fn($c) => new UserService($c->get(IUserModel::class)));
@@ -44,7 +47,13 @@ $container->bind(IFranchiseService::class,   fn($c) => new FranchiseService($c->
 $container->bind(IPublisherService::class,   fn($c) => new PublisherService($c->get(IPublisherModel::class)));
 $container->bind(IAddressService::class,     fn($c) => new AddressService($c->get(IAddressModel::class), $c->get(IUserModel::class)));
 $container->bind(IMediaEntryService::class,  fn($c) => new MediaEntryService($c->get(IMediaEntryModel::class), $c->get(IFranchiseModel::class)));
-$container->bind(ICartItemService::class,    fn($c) => new CartItemService($c->get(ICartItemModel::class), $c->get(IProductModel::class), $c->get(IUserModel::class)));
+$container->bind(IStockReservationService::class, fn($c) => new StockReservationService($c->get(IStockReservationModel::class)));
+$container->bind(ICartItemService::class, fn($c) => new CartItemService(
+    $c->get(ICartItemModel::class),
+    $c->get(IProductModel::class),
+    $c->get(IUserModel::class),
+    $c->get(IStockReservationModel::class)
+));
 $container->bind(IProductImageService::class,fn($c) => new ProductImageService($c->get(IProductImageModel::class), $c->get(IProductModel::class)));
 $container->bind(IRefreshTokenService::class,fn($c) => new RefreshTokenService($c->get(IRefreshTokenModel::class), $c->get(IUserModel::class)));
 $container->bind(IAuthService::class,        fn($c) => new AuthService($c->get(IUserModel::class), $c->get(IRefreshTokenService::class)));
@@ -78,6 +87,7 @@ $container->bind(ProductController::class,      fn($c) => new ProductController(
 $container->bind(CartItemController::class,     fn($c) => new CartItemController($c->get(ICartItemService::class)));
 $container->bind(ProductImageController::class, fn($c) => new ProductImageController($c->get(IProductImageService::class)));
 $container->bind(OrderController::class, fn($c) => new OrderController($c->get(IOrderService::class)));
+$container->bind(StockReservationController::class, fn($c) => new StockReservationController($c->get(IStockReservationService::class)));
 $container->bind(AuthController::class,  fn($c) => new AuthController(
     $c->get(IAuthService::class),
     $c->get(IUserService::class),

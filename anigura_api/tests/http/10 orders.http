@@ -2,7 +2,7 @@
 @baseUrl = http://localhost:8000
 @contentType = application/json
 @adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzczNzIwMTMzLCJleHAiOjE3NzM3MjczMzN9.S1y9qv03iOl4v8-xbFnh0zebWAWE0OiPS-AeDidiBUc
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzM3MTk5NTgsImV4cCI6MTc3MzcyNzE1OH0.2B2ab6luXmsKcn1Ox45Qg2p_3HdzIp4h_Hl5pG70swU
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NzQyMjQ0NjAsImV4cCI6MTc3NDIzMTY2MH0.MsN5xNLxk3d7qBNBWYxX3tgB2O_oeMatAzaBj3YRFCE
 
 
 ## Setup — agregar items al carrito primero
@@ -33,24 +33,86 @@ Authorization: Bearer {{userToken}}
 // {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-17 02:06:07"}
 
 
-## Create order — success
+## Setup — tercer item
+POST {{baseUrl}}/cart
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 7,
+    "quantity": 1
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-23 00:19:27"}
+
+
+## Setup - cuarto item
+POST {{baseUrl}}/cart
+Content-Type: {{contentType}}
+Authorization: Bearer {{userToken}}
+
+{
+    "id_product": 9,
+    "quantity": 2
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Item added to cart","data":null,"timestamp":"2026-03-23 00:21:38"}
+
+
+## Get cart
+GET {{baseUrl}}/cart
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"cart_item_id":24,"id_product":1,"quantity":2,"name":"Frieren: Beyond Journey's End Vol. 1","price":"12.99","stock":23,"active":1,"discount":"0.00","unit_price":"12.99","subtotal":"25.98","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg"},{"cart_item_id":26,"id_product":7,"quantity":1,"name":"Oshi no Ko Collector's Box","price":"49.99","stock":5,"active":1,"discount":"0.00","unit_price":"49.99","subtotal":"49.99","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771989177\/onk_boxset_rrkxsa.jpg"},{"cart_item_id":27,"id_product":9,"quantity":2,"name":"Hitori Gotoh Figure - Kotobukiya","price":"24.99","stock":8,"active":1,"discount":"0.00","unit_price":"24.99","subtotal":"49.98","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988012\/btrf_nwuulf.jpg"},{"cart_item_id":25,"id_product":11,"quantity":1,"name":"Frieren 1\/7 Scale Figure - Good Smile","price":"29.99","stock":10,"active":1,"discount":"5.00","unit_price":"28.49","subtotal":"28.49","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbjef_im1dti.jpg"}],"timestamp":"2026-03-23 00:21:45"}
+
+
+## Partial Order - Only 2 item
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+X-Idempotency-Key: partial-order-001
+
+{
+    "id_address": 7,
+    "item_ids": [26, 27]
+}
+
+### Response
+// {"status":"success","code":201,"msg":"Order created successfully","data":{"id":7},"timestamp":"2026-03-23 00:36:18"}
+
+
+## Get cart x2
+GET {{baseUrl}}/cart
+Authorization: Bearer {{userToken}}
+
+### Response
+// {"status":"success","code":200,"msg":"Request success","data":[{"cart_item_id":24,"id_product":1,"quantity":2,"name":"Frieren: Beyond Journey's End Vol. 1","price":"12.99","stock":23,"active":1,"discount":"0.00","unit_price":"12.99","subtotal":"25.98","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbje1_zp63jy.jpg"},{"cart_item_id":25,"id_product":11,"quantity":1,"name":"Frieren 1\/7 Scale Figure - Good Smile","price":"29.99","stock":10,"active":1,"discount":"5.00","unit_price":"28.49","subtotal":"28.49","cover_image":"https:\/\/res.cloudinary.com\/dqemjiltd\/image\/upload\/v1771988013\/fbjef_im1dti.jpg"}],"timestamp":"2026-03-23 00:36:57"}
+
+
+## Create order — success (without IDs)
 POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{userToken}}
+X-Idempotency-Key: complete-order-001
+
 
 {
     "id_address": 7
 }
 
 ### Response
-// {"status":"success","code":201,"msg":"Order created successfully","data":{"id":1},"timestamp":"2026-03-17 02:14:20"}
+// {"status":"success","code":201,"msg":"Order created successfully","data":{"id":8},"timestamp":"2026-03-23 00:37:41"}
+
 
 ## Get cart — debe estar vacío después de la orden
 GET {{baseUrl}}/cart
 Authorization: Bearer {{userToken}}
 
 ### Response
-// {"status":"success","code":200,"msg":"Request success","data":[],"timestamp":"2026-03-17 02:14:27"}
+// {"status":"success","code":200,"msg":"Request success","data":[],"timestamp":"2026-03-23 00:37:49"}
 
 
 ## Get user orders

@@ -137,10 +137,6 @@ $router->delete("/products/:id", function($id) use ($container) {
 });
 
 // --- Cart ---
-$router->get("/cart/validate", function() use ($container) {
-    AuthMiddleware::handle();
-    $container->get(CartItemController::class)->validateUserCart();
-});
 $router->get("/cart", function() use ($container) {
     AuthMiddleware::handle();
     $container->get(CartItemController::class)->show();

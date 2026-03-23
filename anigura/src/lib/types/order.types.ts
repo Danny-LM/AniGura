@@ -27,6 +27,7 @@ export interface OrderWithDetails extends Order {
 
 export interface CreateOrderRequest {
     id_address: number;
+    item_ids?:  number[];
 }
 
 export interface CreateOrderResponse {
