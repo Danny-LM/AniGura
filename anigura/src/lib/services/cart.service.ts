@@ -2,8 +2,7 @@ import { apiClient, ENDPOINTS } from "../api";
 import { uiStore } from "../stores/ui.store.svelte";
 import { cartStore } from "../stores/cart.store.svelte";
 import type {
-    CartItem, CartValidationItem,
-    AddToCartRequest, UpdateCartRequest
+    CartItem, AddToCartRequest, UpdateCartRequest
 } from "../types";
 import { getErrorMsg } from "../utils";
 
@@ -17,25 +16,8 @@ export class CartService {
         uiStore.setLoading(true);
 
         try {
-            const [cartRes, validationRes] = await Promise.all([
-                this.api.get<CartItem[]>(ENDPOINTS.CART.BASE),
-                this.api.get<CartValidationItem[]>(ENDPOINTS.CART.VALIDATE)
-            ]);
-
-            const cartItems       = cartRes.data ?? [];
-            const validationItems = validationRes.data ?? [];
-
-            const mergedItems: CartValidationItem[] = cartItems.map(item => {
-                const validation = validationItems.find(v => v.id_product === item.id_product);
-
-                return {
-                    ...item,
-                    status: validation?.status || "ok",
-                    available: validation?.available || 0,
-                };
-            });
-
-            cartStore.hydrate(mergedItems);
+            const ressponse = await this.api.get<CartItem[]>(ENDPOINTS.CART.BASE);
+            cartStore.hydrate(ressponse.data ?? []);
 
         } catch (error) {
             uiStore.showToast("Failed to load your cart", "error");

@@ -8,17 +8,12 @@ export interface CartItem {
     discount:     string;
     unit_price:   string;
     subtotal:     string;
-    stock:        number;
     active:       0 | 1;
+    available:    number;
     cover_image:  string|null;
 }
 
 export type CartItemStatus = "ok"|"unavailable"|"insufficient";
-
-export interface CartValidationItem extends CartItem {
-    status:    CartItemStatus;
-    available: number;
-}
 
 export interface AddToCartRequest {
     id_product: number;

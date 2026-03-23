@@ -41,9 +41,8 @@ export const ENDPOINTS = {
   },
 
   CART: {
-    BASE:     "/cart",
-    VALIDATE: "/cart/validate",
-    ITEM:     (itemId: number) => `/cart/${itemId}`,
+    BASE: "/cart",
+    ITEM: (itemId: number) => `/cart/${itemId}`,
   },
 
   ADDRESSES: {

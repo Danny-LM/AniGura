@@ -1,16 +1,18 @@
 <?php
 namespace Services;
 
-use Interfaces\Models\{ ICartItemModel, IProductModel, IUserModel};
+use Interfaces\Models\{ ICartItemModel, IProductModel, IUserModel, IStockReservationModel};
 use Interfaces\Services\ICartItemService;
 use Exception;
 
 class CartItemService implements ICartItemService {
-    private $model, $productModel, $userModel;
+    private $model, $productModel, $userModel, $reservationModel;
 
-    public function __construct(ICartItemModel $model, IProductModel $productModel, IUserModel $userModel) {
+    public function __construct(ICartItemModel $model, IProductModel $productModel, IUserModel $userModel, IStockReservationModel $reservationModel) {
         $this->model = $model;
         $this->productModel = $productModel;
+        $this->userModel = $userModel;
+        $this->reservationModel = $reservationModel;
     }
 
     public function findAll(int $page = 1, int $limit = 20) {
@@ -62,7 +64,9 @@ class CartItemService implements ICartItemService {
             $product = $this->productModel->find($productId);
 
             if (!$product || !$product["active"]) throw new Exception("Product unavailable", 404);
-            if ($product["stock"] < $quantity) throw new Exception("Only {$product['stock']} units available", 400);
+            $available = $this->reservationModel->getAvailableStock($productId);
+            if ($available < $quantity) throw new Exception("Only {$product['stock']} units available", 400);
+
 
             $existing = $this->model->where(["id_user" => $userId, "id_product" => $productId]);
 
@@ -70,7 +74,7 @@ class CartItemService implements ICartItemService {
                 $item = $existing[0];
                 $newQty = $item["quantity"] + $quantity;
 
-                if ($product["stock"] < $newQty) throw new Exception("Max stock reached in cart", 400);
+                if ($available < $newQty) throw new Exception("Only {$available} units available", 400);
 
                 return $this->model->update($item["id"], ["quantity" => $newQty]);
             }
@@ -90,7 +94,8 @@ class CartItemService implements ICartItemService {
         if ($qty <= 0) return $this->model->delete($itemId);
 
         $product = $this->productModel->find($item["id_product"]);
-        if ($product["stock"] < $qty) throw new Exception("Only {$product['stock']} units available", 400);
+        $available = $this->reservationModel->getAvailableStock($item["id_product"]);
+        if ($available < $qty) throw new Exception("Only {$product['stock']} units available", 400);
 
         return $this->model->update($itemId, ["quantity" => $qty]);
     }
@@ -100,32 +105,5 @@ class CartItemService implements ICartItemService {
         if (!$item || $item["id_user"] != $userId) throw new Exception("Item not found", 404);
 
         return $this->model->delete($itemId);
-    }
-
-    public function validateCart(int $userId): array {
-        $items = $this->model->getFullCart($userId);
-
-        return array_map(function($item) {
-            $product = $this->productModel->find($item["id_product"]);
-
-            if (!$product || !$product["active"]) {
-                return array_merge($item, [
-                    "status"    => "unavailable",
-                    "available" => 0
-                ]);
-            }
-
-            if ($product["stock"] < $item["quantity"]) {
-                return array_merge($item, [
-                    "status"    => "insufficient",
-                    "available" => $product["stock"]
-                ]);
-            }
-
-            return array_merge($item, [
-                "status"    => "ok",
-                "available" => $product["stock"]
-            ]);
-        }, $items);
     }
 }

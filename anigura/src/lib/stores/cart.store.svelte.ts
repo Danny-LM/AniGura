@@ -1,17 +1,19 @@
-import type { CartValidationItem } from "../types";
+import type { CartItem } from "../types";
 
 class CartStore {
-    items = $state<CartValidationItem[]>([]);
+    items = $state<CartItem[]>([]);
 
     get totalItems(): number {
         return this.items.reduce((sum, item) => sum + item.quantity, 0);
     }
 
     get subtotal(): number {
-        return this.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        return this.items.reduce(
+            (sum, item) => sum + (parseFloat(item.unit_price) * item.quantity), 0
+        );
     }
 
-    hydrate(apiItems: CartValidationItem[]) {
+    hydrate(apiItems: CartItem[]) {
         this.items = apiItems;
     }
 
@@ -20,7 +22,12 @@ class CartStore {
 
         if (index !== -1) {
             if (newQty <= 0) this.removeItem(productId);
-            else this.items[index].quantity = newQty;
+            else {
+                this.items[index].quantity = newQty;
+                this.items[index].subtotal = (
+                    parseFloat(this.items[index].unit_price) * newQty
+                ).toFixed(2);
+            }
         }
     }
 
